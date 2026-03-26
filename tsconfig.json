@@ -29,6 +29,6 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
     "**/*.mts"
-  ],
+, "src/logica/login.js", "src/logica/dashboard.js"  ],
   "exclude": ["node_modules"]
 }

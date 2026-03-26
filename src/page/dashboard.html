@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../css/dashboard_styles.css">
+
+<title>Dashboard Ventas Tableros</title>
+</head>
+
+<body>
+
+<div class="contenedor-principal">
+
+    <aside class="barra-lateral">
+        <div class="indicador-menu">☰</div>
+        <div class="logo">Tableros corp</div>
+
+        <div class="perfil-usuario">
+            <img src="../img/asdasd.jpg" alt="foto-de-perfil">
+            <h3>Nombre Usuario</h3>
+            <p>Administrador</p>
+        </div>
+
+        <nav class="menu-navegacion">
+            <ul>
+                <li class="activo">Dashboard</li>
+                <li>Ventas</li>
+                <li>Productos</li>
+                <li>Inventario</li>
+                <li>Clientes</li>
+            </ul>
+        </nav>
+
+        <div class="cerrar-sesion">
+            <button>Cerrar sesión</button>
+        </div>
+    </aside>
+
+    <main class="contenido-dashboard">
+
+        <header class="cabecera-dashboard">
+            <h1>Panel de Ventas</h1>
+            <div>🔔 ⚙️</div>
+        </header>
+
+        <section class="metricas-resumen">
+            <div class="metrica">
+                <p>Ventas del mes</p>
+                <span class="valor">$12.500.000</span>
+            </div>
+
+            <div class="metrica">
+                <p>Productos vendidos</p>
+                <span class="valor">320</span>
+            </div>
+
+            <div class="metrica">
+                <p>Pedidos</p>
+                <span class="valor">85</span>
+            </div>
+
+            <div class="tarjeta-upgrade">
+                <h3>Impulsa tus ventas</h3>
+                <p>Activa promociones y descuentos</p>
+                <button>Activar</button>
+            </div>
+        </section>
+
+        <div class="fila-central">
+
+            <section class="grafico-actividad">
+                <h2>Ventas por semana</h2>
+                <canvas></canvas>
+            </section>
+
+            <section class="mejores-interpretes">
+                <h2>Productos más vendidos</h2>
+                <ul class="lista-interpretes">
+                    <li>
+                        <span>Tablero Acrílico 120x80</span>
+                        <span>45 ventas</span>
+                    </li>
+                    <li>
+                        <span>Pizarrón Blanco 90x60</span>
+                        <span>30 ventas</span>
+                    </li>
+                    <li>
+                        <span>Tablero Magnético</span>
+                        <span>25 ventas</span>
+                    </li>
+                </ul>
+            </section>
+
+        </div>
+
+        <section class="seccion-canales">
+            <h2>Productos</h2>
+
+            <div class="tarjetas-redes">
+                <div class="tarjeta-red">
+                    <p>Tablero Acrílico Grande</p>
+                    <span class="positivo">+10%</span>
+                </div>
+
+                <div class="tarjeta-red">
+                    <p>Pizarrón Blanco Mediano</p>
+                    <span class="positivo">+6%</span>
+                </div>
+
+                <div class="tarjeta-red">
+                    <p>Tablero Magnético</p>
+                    <span class="negativo">-3%</span>
+                </div>
+
+                <div class="tarjeta-red">
+                    <p>Tablero con Marco Aluminio</p>
+                    <span class="positivo">+8%</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="../logica/dashboard.js"></script>
+</body>
+</html>

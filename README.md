@@ -1,38 +1,34 @@
-# E-commerce ITP IV
+# Sistema de Ventas de Tableros e-commerce itp IV
 
-## Requisitos
+Aplicación web básica orientada a la visualización de información mediante un dashboard. Incluye un sistema de autenticación sencillo para el acceso de usuarios.
 
-- **Node.js**: 24.14.0
+## Funcionalidades
 
-Verifica tu versión de Node.js antes de instalar:
+* Dashboard con información (obvio de ejemplo)
+* Inicio de sesión básico
+* Cierre de sesión
 
-```bash
-node --version
+## Tecnologías utilizadas
+
+* HTML5
+* CSS
+* JavaScript (typescript no quiso ejecutarse sin compilar(js no me haria esto))
+
+## Estructura del proyecto
 ```
-
-Si tienes una versión incompatible, verás un error como este:
-
+Dentro de src estan todos los archivos
+src/css
+src/js
+src/img (imagen de ejemplo)
+src/page/index.html
 ```
-Error: Se requiere Node.js 24.14.0. Tu versión actual es vXX.XX.X
-```
+## versiones de node
+24.14.0
+## Estado del proyecto
 
-Para cambiar de versión, puedes usar [nvm](https://github.com/nvm-sh/nvm):
+En desarrollo, aun estoy aprendiendo a usar git :D
 
-```bash
-nvm install 24.14.0
-nvm use 24.14.0
-```
-
-## Instalación
-
-```bash
-npm install
-```
-
-## Ejecución
-
-```bash
-npm run dev
-```
-
-El proyecto estará disponible en [http://localhost:3000](http://localhost:3000)
+## Notas
+odio a todos
+## Autor
+* zexter27

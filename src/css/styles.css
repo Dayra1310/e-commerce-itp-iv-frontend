@@ -1,0 +1,89 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: linear-gradient(135deg, #818a99, #2a5298);
+}
+
+/* CENTRADO TOTAL */
+.contenedor_login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* CAJA LOGIN */
+.contenedor_inicio_sesion {
+  background: rgba(255, 255, 255, 0.95);
+  padding: 40px 30px;
+  border-radius: 15px;
+  width: 320px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  text-align: center;
+}
+
+/* TITULO */
+.contenedor_inicio_sesion h2 {
+  margin-bottom: 20px;
+  color: #1e3c72;
+}
+
+/* FORMULARIO */
+.contenedor_formulario_inicio {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* INPUTS */
+.contenedor_formulario_inicio input {
+  width: 100%;
+  height: 45px;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  outline: none;
+  box-sizing: border-box; /* 🔥 ESTA ES LA CLAVE */
+}
+
+/* EFECTO FOCUS */
+.contenedor_formulario_inicio input:focus {
+  border-color: #2a5298;
+  box-shadow: 0 0 5px rgba(42,82,152,0.4);
+}
+
+/* BOTÓN */
+.boton_login {
+  margin-top: 20px;
+  width: 100%;
+  padding: 12px;
+  background: #2a5298;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+  font-weight: bold;
+}
+
+/* HOVER */
+.boton_login:hover {
+  background: #1e3c72;
+  transform: scale(1.03);
+}
+
+/* TEXTO REGISTRO */
+.texto_registro {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.texto_registro a {
+  color: #2a5298;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.texto_registro a:hover {
+  text-decoration: underline;
+}

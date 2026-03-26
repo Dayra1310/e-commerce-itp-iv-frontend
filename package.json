@@ -24,6 +24,20 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+    "typescript": "^5.9.3"
+  },
+  "description": "- **Node.js**: 24.14.0",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dayra1310/e-commerce-itp-iv-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Dayra1310/e-commerce-itp-iv-frontend/issues"
+  },
+  "homepage": "https://github.com/Dayra1310/e-commerce-itp-iv-frontend#readme"
 }
