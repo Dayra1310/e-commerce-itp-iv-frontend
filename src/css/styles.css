@@ -1,85 +1,183 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
 body {
   margin: 0;
-  font-family: 'Segoe UI', Arial, sans-serif;
-  background: linear-gradient(135deg, #818a99, #2a5298);
+  height: 100vh;
+  background: #0F181F;
+  overflow: hidden;
+  position: relative;
+  font-family: 'roboto', Arial, Helvetica, sans-serif;
 }
 
-/* CENTRADO TOTAL */
+/* Círculo 1 */
+body::before {
+  content: "";
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  top: -100px;
+  left: -100px;
+  background: radial-gradient(circle, #274052, transparent 80%);
+  filter: blur(80px);
+}
+
+/* Círculo 2 */
+body::after {
+  content: "";
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  bottom: -150px;
+  right: -150px;
+
+  background: radial-gradient(circle, #3f516e, transparent 60%);
+  filter: blur(100px);
+}
+
+/* 
+  Animacion de carga
+*/
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(245, 248, 253, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: #1e3c72;
+  font-weight: bold;
+  font-size: 0.95rem;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.4s ease;
+}
+
+.preloader.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.preloader .load-man {
+  --primary: #2a5298;
+  --secondary: #1e3c72;
+  position: relative;
+  margin: 0 auto;
+}
+
+/* 
+      login 
+*/
 .contenedor_login {
+  position: relative;
+  z-index: 10;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
+  opacity: 0;
+  transform: translateY(25px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
 }
 
-/* CAJA LOGIN */
+.contenedor_login.ready {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .contenedor_inicio_sesion {
-  background: rgba(255, 255, 255, 0.95);
-  padding: 40px 30px;
-  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  
   width: 320px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  padding: 40px 30px;
+  border-radius: 20px;
+
+  background: #7575756b;
+  backdrop-filter: blur(15px);
+
+  border: 1px solid #2c2c2c3b;
+  box-shadow: 0 8px 32px rgba(22, 22, 22, 0.514);
+
   text-align: center;
+  color: #e8e7e3;
 }
 
-/* TITULO */
+/* titulo */
 .contenedor_inicio_sesion h2 {
   margin-bottom: 20px;
-  color: #1e3c72;
+  color: #f1f1ee;
 }
 
-/* FORMULARIO */
+/* form*/
 .contenedor_formulario_inicio {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* INPUTS */
+/* inputs */
 .contenedor_formulario_inicio input {
   width: 100%;
   height: 45px;
   padding: 10px;
+
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 2px solid rgba(255, 255, 255, 0.315);
   outline: none;
-  box-sizing: border-box; /* 🔥 ESTA ES LA CLAVE */
+
+  background: rgba(255, 255, 255, 0.158);
+  color: #e8e7e3;
+
+  box-sizing: border-box;
+  transition: 0.3s;
 }
 
-/* EFECTO FOCUS */
+/* dentro de los inputs */
+.contenedor_formulario_inicio input::placeholder {
+  color: #c5d3e0;
+}
+
+/* FOCUS */
 .contenedor_formulario_inicio input:focus {
-  border-color: #2a5298;
-  box-shadow: 0 0 5px rgba(42,82,152,0.4);
+  border-color: #9fa8b8;
+  box-shadow: 0 0 10px rgba(159,168,184,0.3);
 }
 
-/* BOTÓN */
+/* boton */
 .boton_login {
   margin-top: 20px;
   width: 100%;
   padding: 12px;
-  background: #2a5298;
-  color: white;
+
+  background: #e8e7e3;
+  color: #1b2b36 ;
+
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  transition: 0.3s;
+
   font-weight: bold;
+  transition: 0.3s;
 }
 
-/* HOVER */
 .boton_login:hover {
-  background: #1e3c72;
-  transform: scale(1.03);
+  background: #e8e7e31f;
+  color: #e8e7e3;
+  transform: scale(1.04);
 }
 
-/* TEXTO REGISTRO */
 .texto_registro {
   margin-top: 15px;
   font-size: 14px;
+  color: #c5d3e0;
 }
 
 .texto_registro a {
-  color: #2a5298;
+  color: #e8e7e3;
   text-decoration: none;
   font-weight: bold;
 }

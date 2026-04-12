@@ -1,0 +1,117 @@
+body.modo-oscuro {
+  background: #121212;
+  color: #E0E0E0;
+}
+
+/* CONTENEDORES */
+body.modo-oscuro .contenedor-principal {
+  background: #121212;
+}
+
+/* SIDEBAR */
+body.modo-oscuro .barra-lateral {
+  background: linear-gradient(135deg, #1f2a36, #2c3e50);
+}
+
+/* TARJETAS */
+body.modo-oscuro .metrica,
+body.modo-oscuro .grafico-actividad,
+body.modo-oscuro .mejores-interpretes,
+body.modo-oscuro .tarjeta-red,
+body.modo-oscuro .productos-tabla {
+  background: #1E1E1E;
+  color: #E0E0E0;
+}
+
+/* TABLA */
+body.modo-oscuro #productos-table th {
+  background: #2c3e50;
+}
+
+body.modo-oscuro #productos-table thead {
+  background: #2c3e50;
+}
+
+body.modo-oscuro #productos-table thead th {
+  background: #2c3e50;
+}
+
+body.modo-oscuro #productos-table td {
+  color: #ccc;
+}
+
+body.modo-oscuro #productos-table tbody tr {
+  background: #1E1E1E;
+}
+
+body.modo-oscuro #productos-table tbody tr:nth-child(even) {
+  background: #252525;
+}
+
+body.modo-oscuro #productos-table tbody tr:hover {
+  background: #333;
+}
+
+/* CONTROLES DE FILTRO */
+body.modo-oscuro .controles-filtro {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+body.modo-oscuro .controles-filtro .buscador input {
+  background: #1E1E1E;
+  border-color: #555;
+  color: #E0E0E0;
+}
+
+body.modo-oscuro .controles-filtro .buscador input:focus {
+  border-color: #1ABC9C;
+  box-shadow: 0 0 5px rgba(26, 188, 156, 0.3);
+}
+
+body.modo-oscuro .productos-info {
+  color: #ccc;
+  border-bottom-color: #444;
+}
+
+body.modo-oscuro .productos-info span {
+  color: #1ABC9C;
+}
+
+/* CONTENEDOR CON SCROLL */
+body.modo-oscuro .tabla-scroll-container {
+  border-color: #444;
+  background: #2a2a2a;
+}
+
+body.modo-oscuro .tabla-scroll-container::-webkit-scrollbar-track {
+  background: #333;
+}
+
+body.modo-oscuro .tabla-scroll-container::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+body.modo-oscuro .tabla-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
+
+body.modo-oscuro .controles-filtro select {
+  background: #1E1E1E;
+  border-color: #555;
+  color: #E0E0E0;
+}
+
+body.modo-oscuro .controles-filtro select:focus {
+  border-color: #1ABC9C;
+  box-shadow: 0 0 5px rgba(26, 188, 156, 0.3);
+}
+
+/* PANEL CONFIG */
+body.modo-oscuro .panel-contenido {
+  background: #1E1E1E;
+}
+
+body.modo-oscuro .panel-header {
+  background: #222;
+}

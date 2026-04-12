@@ -1,128 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="../css/dashboard_styles.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../css/dashboard_styles.css" />
+    <link rel="stylesheet" href="../css/darkmode.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <title>Dashboard Ventas Tableros</title>
+  </head>
 
-<title>Dashboard Ventas Tableros</title>
-</head>
-
-<body>
-
-<div class="contenedor-principal">
-
-    <aside class="barra-lateral">
+  <body>
+    <div class="contenedor-principal">
+      <aside class="barra-lateral">
         <div class="indicador-menu">☰</div>
         <div class="logo">Tableros corp</div>
 
         <div class="perfil-usuario">
-            <img src="../img/asdasd.jpg" alt="foto-de-perfil">
-            <h3>Nombre Usuario</h3>
-            <p>Administrador</p>
+          <img src="../img/asdasd.jpg" alt="foto-de-perfil" />
+          <h3>Nombre Usuario</h3>
+          <p>Administrador</p>
         </div>
 
         <nav class="menu-navegacion">
-            <ul>
-                <li class="activo">Dashboard</li>
-                <li>Ventas</li>
-                <li>Productos</li>
-                <li>Inventario</li>
-                <li>Clientes</li>
-            </ul>
+          <ul>
+            <li class="activo" data-seccion="dashboard">Dashboard</li>
+            <li data-seccion="ventas">Ventas</li>
+            <li data-seccion="productos" data-link="productos.html">Productos</li>
+            <li data-seccion="inventario">Inventario</li>
+            <li data-seccion="clientes">Clientes</li>
+          </ul>
         </nav>
 
-        <div class="cerrar-sesion">
-            <button>Cerrar sesión</button>
+        <div class="menu-opciones">
+          <button id="btn-configuracion">Configuración</button>
         </div>
-    </aside>
+        <div class="cerrar-sesion">
+          <button>Cerrar sesión</button>
+        </div>
+      </aside>
 
-    <main class="contenido-dashboard">
+      <!-- Panel de Configuración -->
+      <div id="panel-configuracion" class="panel-configuracion">
+        <div class="panel-header">
+          <h3>Configuración</h3>
+          <button id="cerrar-panel">✕</button>
+        </div>
+        <div class="panel-contenido">
+          <div class="opcion-config">
+            <label for="foto-perfil">Cambiar Foto de Perfil:</label>
+            <input type="file" id="foto-perfil" accept="image/*" />
 
+            <!-- Conectar con backend para subir imagen -->
+
+          </div>
+          <!-- modo oscuro -->
+          
+          <div class="opcion-config">
+            <label class="switch">
+              <input type="checkbox" id="modo-oscuro" />
+              <span class="slider"></span>
+            </label>
+            <span>Modo Oscuro</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- aca es literalmente todo el dashboard -->
+      
+      <main class="contenido-dashboard">
         <header class="cabecera-dashboard">
-            <h1>Panel de Ventas</h1>
-            <div>🔔 ⚙️</div>
+          <h1>Panel de Ventas</h1>
         </header>
 
         <section class="metricas-resumen">
-            <div class="metrica">
-                <p>Ventas del mes</p>
-                <span class="valor">$12.500.000</span>
-            </div>
+          <div class="metrica">
+            <p>Ventas del mes</p>
+            <span id="ventas-del-mes" class="valor"></span>
+          </div>
 
-            <div class="metrica">
-                <p>Productos vendidos</p>
-                <span class="valor">320</span>
-            </div>
+          <div class="metrica">
+            <p>Productos vendidos</p>
+            <span id="productos-vendidos" class="valor"></span>
+          </div>
 
-            <div class="metrica">
-                <p>Pedidos</p>
-                <span class="valor">85</span>
-            </div>
+          <div class="metrica">
+            <p>Pedidos</p>
+            <span id="productos-pedidos" class="valor"></span>
+          </div>
 
-            <div class="tarjeta-upgrade">
-                <h3>Impulsa tus ventas</h3>
-                <p>Activa promociones y descuentos</p>
-                <button>Activar</button>
-            </div>
         </section>
 
         <div class="fila-central">
+          <section class="grafico-actividad">
+            <h2>Ventas por semana</h2>
+            <canvas id="ventasChart"></canvas>
+          </section>
 
-            <section class="grafico-actividad">
-                <h2>Ventas por semana</h2>
-                <canvas></canvas>
-            </section>
-
-            <section class="mejores-interpretes">
-                <h2>Productos más vendidos</h2>
-                <ul class="lista-interpretes">
-                    <li>
-                        <span>Tablero Acrílico 120x80</span>
-                        <span>45 ventas</span>
-                    </li>
-                    <li>
-                        <span>Pizarrón Blanco 90x60</span>
-                        <span>30 ventas</span>
-                    </li>
-                    <li>
-                        <span>Tablero Magnético</span>
-                        <span>25 ventas</span>
-                    </li>
-                </ul>
-            </section>
-
+          <section class="mejores-interpretes">
+            <h2>Productos más vendidos</h2>
+            <div class="grafico-polar-container">
+              <canvas id="productosPolarChart"></canvas>
+            </div>
+          </section>
         </div>
 
-        <section class="seccion-canales">
-            <h2>Productos</h2>
 
-            <div class="tarjetas-redes">
-                <div class="tarjeta-red">
-                    <p>Tablero Acrílico Grande</p>
-                    <span class="positivo">+10%</span>
-                </div>
-
-                <div class="tarjeta-red">
-                    <p>Pizarrón Blanco Mediano</p>
-                    <span class="positivo">+6%</span>
-                </div>
-
-                <div class="tarjeta-red">
-                    <p>Tablero Magnético</p>
-                    <span class="negativo">-3%</span>
-                </div>
-
-                <div class="tarjeta-red">
-                    <p>Tablero con Marco Aluminio</p>
-                    <span class="positivo">+8%</span>
-                </div>
-            </div>
+          </div>
         </section>
+      </main>
+    </div>
 
-    </main>
-</div>
-
-<script src="../logica/dashboard.js"></script>
-</body>
+<script type="module" src="../logica/dashboard.js"></script>
+<script src="../logica/tema.js"></script>
+  </body>
 </html>

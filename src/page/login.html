@@ -1,29 +1,41 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title>Login</title>
-  <link rel="stylesheet" href="../css/styles.css">
-</head>
-<body>
-  <div  class="contenedor_login">
-    <div class="contenedor_inicio_sesion">
-    <h2>Iniciar Sesión</h2>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login E.Commerce</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/whirl-dist/css/load-man.css" />
+  </head>
+  <body>
+    <div class="preloader" id="preloader">
+      <div class="load-man"></div>
+      <p>Cargando, por favor espera...</p>
+    </div>
 
-    <form id="formulario_inicio" class="contenedor_formulario_inicio">
-      <input type="email" id="correo" placeholder="Correo" required>
-      <input type="password" id="contrasena" placeholder="Contraseña" required>
-      <button class="boton_login" type="submit">Ingresar</button>
-    </form>
+    <div class="contenedor_login" id="loginContent">
+      <div class="contenedor_inicio_sesion">
+        <h2>Iniciar Sesión</h2>
 
-    <p class="texto_registro">
-      ¿No tienes cuenta? 
-      <a href="registro.html">Regístrate aquí</a>
-    </p>
-  </div>
+        <form id="formulario_inicio" class="contenedor_formulario_inicio">
+          <input type="email" id="correo" placeholder="Correo" required />
+          <input
+            type="password"
+            id="contraseña"
+            placeholder="Contraseña"
+            required
+          />
+          <button class="boton_login" id="btnLogin" type="submit">
+            Ingresar
+          </button>
+        </form>
 
-  </div>
+        <p class="texto_registro">
+          ¿No tienes cuenta?
+          <a href="registro.html">Regístrate aquí</a>
+        </p>
+      </div>
+    </div>
 
-  <script src="../logica/login.js" ></script>
-</body>
+<script type="module" src="../logica/login-front.js"></script>
+  </body>
 </html>

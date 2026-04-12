@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../css/dashboard_styles.css">
+<link rel="stylesheet" href="../css/darkmode.css">
+<title>Productos - Tableros Corp</title>
+</head>
+
+<body>
+
+<div class="contenedor-principal">
+
+    <aside class="barra-lateral">
+        <div class="indicador-menu">☰</div>
+        <div class="logo">Tableros corp</div>
+
+        <div class="perfil-usuario">
+            <img src="../img/asdasd.jpg" alt="foto-de-perfil">
+            <h3>Nombre Usuario</h3>
+            <p>Administrador</p>
+        </div>
+
+        <nav class="menu-navegacion">
+            <ul>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li>Ventas</li>
+                <li class="activo">Productos</li>
+                <li>Inventario</li>
+                <li>Clientes</li>
+            </ul>
+        </nav>
+        <div class="menu-opciones">
+            <button id="btn-configuracion">Configuración</button>
+        </div>
+        <div class="cerrar-sesion">
+            <button>Cerrar sesión</button>
+        </div>
+    </aside>
+
+    <!-- Panel de Configuración -->
+    <div id="panel-configuracion" class="panel-configuracion">
+        <div class="panel-header">
+            <h3>Configuración</h3>
+            <button id="cerrar-panel">✕</button>
+        </div>
+        <div class="panel-contenido">
+            <div class="opcion-config">
+                <label for="foto-perfil">Cambiar Foto de Perfil:</label>
+                <input type="file" id="foto-perfil" accept="image/*">
+                <!-- TODO: Conectar con backend para subir imagen -->
+            </div>
+            <div class="opcion-config">
+                <label class="switch">
+                    <input type="checkbox" id="modo-oscuro" />
+                    <span class="slider"></span>
+                </label>
+                <span>Modo Oscuro</span>
+            </div>
+        </div>
+    </div>
+
+    <main class="contenido-dashboard">
+
+        <header class="cabecera-dashboard">
+            <h1>Gestión de Productos</h1>
+        </header>
+
+        <section class="productos-tabla">
+            <h2>Lista de Productos</h2>
+            <div id="productos-info" class="productos-info">
+                Mostrando <span id="productos-count">0</span> productos
+            </div>
+            
+            <!-- Controles de filtrado -->
+            <div class="controles-filtro">
+                <!-- Buscador -->
+                <div class="buscador">
+                    <label for="buscar-productos">Buscar:</label>
+                    <input type="text" id="buscar-productos" placeholder="Buscar por nombre, material...">
+                </div>
+                
+                <label for="filtro-orden">Ordenar por:</label>
+                <select id="filtro-orden">
+                    <option value="id">ID (A-Z)</option>
+                    <option value="id-desc">ID (Z-A)</option>
+                    <option value="nombre">Nombre (A-Z)</option>
+                    <option value="nombre-desc">Nombre (Z-A)</option>
+                    <option value="material">Material (A-Z)</option>
+                    <option value="material-desc">Material (Z-A)</option>
+                    <option value="cantidad">Cantidad (Menor-Mayor)</option>
+                    <option value="cantidad-desc">Cantidad (Mayor-Menor)</option>
+                    <option value="precio">Precio (Menor-Mayor)</option>
+                    <option value="precio-desc">Precio (Mayor-Menor)</option>
+                </select>
+                <button id="btn-aplicar-filtro">Aplicar Filtro</button>
+                <button id="btn-limpiar-filtro">Limpiar</button>
+            </div>
+            
+            <!-- Contenedor con scroll para la tabla -->
+            <div class="tabla-scroll-container">
+                <table id="productos-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Cantidad</th>
+                            <th>Material</th>
+                            <th>Precio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Los datos se cargarán aquí -->
+                    </tbody>
+                </table>
+            </div>
+
+    </main>
+</div>
+
+<script type="module" src="../logica/productos.js"></script>
+<script src="../logica/tema.js"></script>
+</body>
+</html>
