@@ -62,18 +62,17 @@ src/page/login.html
 
 ## 🔗 Endpoints del Backend
 
-  Método   Ruta                         Descripción           Auth
-  -------- ---------------------------- --------------------- ------
-  POST     `/auth/login`                Iniciar sesión        No
-  POST     `/auth/register`             Registrar usuario     No
-  GET      `/api/productos`             Listar productos      Sí
-  GET      `/api/productos/search?q=`   Buscar productos      Sí
-  GET      `/api/dashboard`             Datos del dashboard   Sí
-  GET      `/api/verificar`             Verificar token       Sí
-  GET      `/api/sesiones`              Sesiones activas      Sí
-  POST     `/api/cerrar-sesion`         Cerrar sesión         Sí
-  GET      `/health`                    Health check          No
-
+| Método | Ruta                         | Descripción           | Auth |
+|--------|------------------------------|-----------------------|------|
+| POST   | `/auth/login`                | Iniciar sesión        | No   |
+| POST   | `/auth/register`             | Registrar usuario     | No   |
+| GET    | `/api/productos`             | Listar productos      | Sí   |
+| GET    | `/api/productos/search?q=`   | Buscar productos      | Sí   |
+| GET    | `/api/dashboard`             | Datos del dashboard   | Sí   |
+| GET    | `/api/verificar`             | Verificar token       | Sí   |
+| GET    | `/api/sesiones`              | Sesiones activas      | Sí   |
+| POST   | `/api/cerrar-sesion`         | Cerrar sesión         | Sí   |
+| GET    | `/health`                    | Health check          | No   |
 ------------------------------------------------------------------------
 
 ## 📁 Estructura del Proyecto
