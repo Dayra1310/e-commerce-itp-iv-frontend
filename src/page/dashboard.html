@@ -1,116 +1,82 @@
-<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="../css/dashboard_styles.css" />
-    <link rel="stylesheet" href="../css/darkmode.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-    <title>Dashboard Ventas Tableros</title>
-  </head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <body>
-    <div class="contenedor-principal">
-      <aside class="barra-lateral">
-        <div class="indicador-menu">☰</div>
-        <div class="logo">Tableros corp</div>
+    <link rel="stylesheet" href="../../public/css/dash.css">
+    <link rel="stylesheet" href="../../public/css/tema.css">
+    
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-        <div class="perfil-usuario">
-          <img src="../img/asdasd.jpg" alt="foto-de-perfil" />
-          <h3>Nombre Usuario</h3>
-          <p>Administrador</p>
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="perfil">
+
+            <img
+                id="fotoDePerfil"
+                src="http://localhost:3001/uploads/default.jpg"
+                alt="usuarioFoto"
+                title="Cambiar foto"
+            >
+
+            <input
+                type="file"
+                id="inputImagen"
+                accept="image/*"
+                hidden
+            >
+
+            <h3 id="nombreUsuario">Usuario</h3>
+
+            <p id="rolUsuario">Administrador</p>
+
         </div>
 
-        <nav class="menu-navegacion">
-          <ul>
-            <li class="activo" data-seccion="dashboard">Dashboard</li>
-            <li data-seccion="ventas">Ventas</li>
-            <li data-seccion="productos" data-link="productos.html">Productos</li>
-            <li data-seccion="inventario">Inventario</li>
-            <li data-seccion="clientes">Clientes</li>
-          </ul>
+        <nav class="menu">
+            <a href="#" data-vista="dashboard" class="activo">Dashboard</a>
+            <a href="#" data-vista="productos">Productos</a>
+            <a href="#" data-vista="reportes">Reportes</a>
+            <a href="#" data-vista="usuarios">Usuarios</a>
         </nav>
 
-        <div class="menu-opciones">
-          <button id="btn-configuracion">Configuración</button>
-        </div>
-        <div class="cerrar-sesion">
-          <button>Cerrar sesión</button>
-        </div>
-      </aside>
+    </aside>
 
-      <!-- Panel de Configuración -->
-      <div id="panel-configuracion" class="panel-configuracion">
-        <div class="panel-header">
-          <h3>Configuración</h3>
-          <button id="cerrar-panel">✕</button>
-        </div>
-        <div class="panel-contenido">
-          <div class="opcion-config">
-            <label for="foto-perfil">Cambiar Foto de Perfil:</label>
-            <input type="file" id="foto-perfil" accept="image/*" />
+    <!-- CONTENIDO -->
+    <main class="contenido">
+        <div id="vista"></div>
+    </main>
 
-            <!-- Conectar con backend para subir imagen -->
 
-          </div>
-          <!-- modo oscuro -->
-          
-          <div class="opcion-config">
-            <label class="switch">
-              <input type="checkbox" id="modo-oscuro" />
-              <span class="slider"></span>
-            </label>
-            <span>Modo Oscuro</span>
-          </div>
-        </div>
-      </div>
+    <!-- MODAL IMAGEN -->
+    <div class="modalImagen" id="modalImagen">
 
-      <!-- aca es literalmente todo el dashboard -->
-      
-      <main class="contenido-dashboard">
-        <header class="cabecera-dashboard">
-          <h1>Panel de Ventas</h1>
-        </header>
+        <div class="contenidoModal">
 
-        <section class="metricas-resumen">
-          <div class="metrica">
-            <p>Ventas del mes</p>
-            <span id="ventas-del-mes" class="valor"></span>
-          </div>
+            <img
+                id="imagenGrande"
+                src="http://localhost:3001/uploads/default.jpg"
+                alt=""
+            >
 
-          <div class="metrica">
-            <p>Productos vendidos</p>
-            <span id="productos-vendidos" class="valor"></span>
-          </div>
+            <button id="btnEditarImagen">
+                Editar Imagen
+            </button>
 
-          <div class="metrica">
-            <p>Pedidos</p>
-            <span id="productos-pedidos" class="valor"></span>
-          </div>
-
-        </section>
-
-        <div class="fila-central">
-          <section class="grafico-actividad">
-            <h2>Ventas por semana</h2>
-            <canvas id="ventasChart"></canvas>
-          </section>
-
-          <section class="mejores-interpretes">
-            <h2>Productos más vendidos</h2>
-            <div class="grafico-polar-container">
-              <canvas id="productosPolarChart"></canvas>
-            </div>
-          </section>
         </div>
 
-
-          </div>
-        </section>
-      </main>
     </div>
 
-<script type="module" src="../logica/dashboard.js"></script>
-<script src="../logica/tema.js"></script>
-  </body>
+
+    <!--<script src="../logica/dashboard-extra.js"></script> -->
+    <script src="../logica/dashboard.js"></script>
+
+</body>
 </html>
