@@ -94,21 +94,17 @@ src/page/login.html
 
 ## ✅ Funcionalidades
 
--   [x] Login / Logout con JWT\
--   [x] Dashboard con métricas\
--   [x] Gestión de productos\
+-   [x] Login / Logout con cookies\
+-   [ ] Dashboard con métricas\
+-   [] Gestión de productos\
 -   [x] Tema oscuro\
--   [x] Sesiones múltiples\
+-   [x] gestion de usuarios
 -   [ ] Ventas\
--   [ ] Inventario\
+-   [x] Inventario\
 -   [ ] Clientes
 
 ------------------------------------------------------------------------
 
-Notas adicionales:
-1. yo se que edwin me va a pegar por haberle cambiado el tiempo del token (opencode no opencodio)
-2. debo corregir cosas del propio css ya que no quedaron bien implementadas
-------------------------------------------------------------------------
 
 ## 👤 Autor
 
