@@ -26,23 +26,6 @@ cd e-commerce-itp-iv-frontend
 npm install
 ```
 
-------------------------------------------------------------------------
-
-## ⚙️ Configuración
-
-### Backend (.env)
-
-``` env
-DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
-DB_PASSWORD=tu_password
-DB_NAME=prueba
-
-PORT=4200
-JWT_SECRET=tu-secret-key
-JWT_EXPIRES_IN=7d
-```
 
 ------------------------------------------------------------------------
 
@@ -55,6 +38,7 @@ npm run dev
 
 # Terminal 2 - Frontend
 # Abrir con Live Server:
+# o usar liveserver pero abrir la url "http://127.0.0.1:5500/frontend/src/page/login.html"
 src/page/login.html
 ```
 
