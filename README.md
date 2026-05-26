@@ -44,8 +44,7 @@ src/page/login.html
 ```
 
 ------------------------------------------------------------------------
-![El login se ve asi](asdfdsafdsaf.PNG)
-------------------------------------------------------------------------
+
 
 ## Funcionalidades
 
@@ -62,6 +61,7 @@ Se maneja de tal forma que el contenido cargado es dinamico, es decir en vez de 
 
 Usualmente para este tipo de modulos se maneja asi, es facil de entender, modificar, etc.
 
+![El login se ve asi](asdfdsafdsaf.PNG)
 
 ------------------------------------------------------------------------
 ##  Autor
