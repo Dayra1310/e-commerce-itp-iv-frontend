@@ -1,39 +1,59 @@
-const form = document.getElementById("formulario_inicio");
+const API_BASE_URL =  "http://localhost:3001";
+const formularioInicio = document.getElementById("formulario_inicio");
+const botonLogin = document.getElementById("btnLogin");
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email ?? "").trim());
 
-  const email = document.getElementById("correo").value.trim();
-  const password = document.getElementById("contraseña").value.trim();
+async function leerRespuestaJson(respuesta) {
+  try {
+    return await respuesta.json();
+  } catch (_error) {
+    return { ok: false, message: "Respuesta inválida del servidor" };
+  }
+}
 
-  if (!email || !password) {
+formularioInicio.addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const email = document.getElementById("correo").value.trim().toLowerCase();
+  const password = document.getElementById("contraseña").value;
+
+  if (!validarEmail(email)) {
     Swal.fire({
       icon: "warning",
-      title: "Campos vacíos",
-      text: "Completa todos los campos"
+      title: "Datos incompletos",
+      text: "Ingresa un correo válido y tu contraseña",
+    });
+    return;
+  }
+
+  if (!password) {
+    Swal.fire({
+      icon: "warning",
+      title: "Datos incompletos",
+      text: "Ingresa un correo válido y tu contraseña",
     });
     return;
   }
 
   try {
+    botonLogin.disabled = true;
+    botonLogin.textContent = "Ingresando...";
 
-    const res = await fetch("http://localhost:3001/login", {
+    const respuesta = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
+    const datos = await leerRespuestaJson(respuesta);
 
-    // ❌ error de login
-    if (!data.ok) {
+    if (!respuesta.ok) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: data.message || "Credenciales incorrectas"
+        title: "No se pudo iniciar sesión",
+        text: datos.message ?? "Credenciales incorrectas",
       });
       return;
     }
@@ -41,23 +61,24 @@ form.addEventListener("submit", async (e) => {
     Swal.fire({
       icon: "success",
       title: "Bienvenido",
-      text: data.message,
+      text: datos.message ?? "Login exitoso",
       timer: 1200,
-      showConfirmButton: false
+      showConfirmButton: false,
     });
 
     setTimeout(() => {
       window.location.href = "dashboard.html";
     }, 1200);
-
   } catch (error) {
-
-    console.log(error);
+    console.error("Error en login:", error);
 
     Swal.fire({
       icon: "error",
-      title: "Error",
-      text: "No se pudo conectar al servidor"
+      title: "Error de conexión",
+      text: "No se pudo conectar al servidor backend",
     });
+  } finally {
+    botonLogin.disabled = false;
+    botonLogin.textContent = "Ingresar";
   }
 });
