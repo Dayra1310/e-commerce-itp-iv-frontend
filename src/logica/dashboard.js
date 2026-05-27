@@ -293,8 +293,7 @@ async function obtenerPedidosDashboard() {
 
   try {
 
-    const respuesta = await fetch(
-      "http://localhost:3001/dashboard/pedidos",
+    const respuesta = await fetch("http://localhost:3001/dashboard/pedidos",
       {
         credentials: "include"
       }
@@ -316,7 +315,6 @@ async function obtenerPedidosDashboard() {
 function renderPedidosDashboard(pedidos) {
 
   const tbody = document.getElementById("tabla-dashboard-pedidos");
-
   if (!tbody) return;
 
   tbody.innerHTML = pedidos.map(pedido => `
