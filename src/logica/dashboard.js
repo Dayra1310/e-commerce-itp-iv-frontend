@@ -99,11 +99,38 @@ function actualizarIconoDark() {
   btn.innerHTML = estadoAplicacion.modoOscuroActivo ? "Modo claro" : "Modo oscuro";
 }
 
-function toggleDarkMode() {
-  estadoAplicacion.modoOscuroActivo = document.body.classList.toggle("dark");
+
+function guardarModoOscuroEnCookie(modoOscuroActivo) {
+  const valor = modoOscuroActivo ? "oscuro" : "claro";
+  document.cookie = `tema=${valor}; path=/; max-age=31536000; SameSite=Lax`;
+}
+
+function obtenerModoOscuroDesdeCookie() {
+  const cookieTema = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith("tema="));
+
+  if (!cookieTema) return false;
+
+  const valorTema = cookieTema.split("=")[1];
+  return valorTema === "oscuro";
+}
+
+function aplicarModoOscuro(modoOscuroActivo) {
+  estadoAplicacion.modoOscuroActivo = modoOscuroActivo;
+  document.body.classList.toggle("dark", modoOscuroActivo);
+
   const toggle = document.getElementById("toggle-dark");
-  if (toggle) toggle.checked = estadoAplicacion.modoOscuroActivo;
+  if (toggle) toggle.checked = modoOscuroActivo;
+
   actualizarIconoDark();
+}
+
+function toggleDarkMode() {
+  const nuevoEstado = !estadoAplicacion.modoOscuroActivo;
+
+  aplicarModoOscuro(nuevoEstado);
+  guardarModoOscuroEnCookie(nuevoEstado);
 }
 
 const datosEjemplo = {
@@ -768,7 +795,7 @@ function registrarEventosMenu() {
 }
 
 async function init() {
-  document.body.classList.remove("dark");
+  aplicarModoOscuro(obtenerModoOscuroDesdeCookie());
   inyectarSidebar();
   inyectarModal();
   registrarEventosPerfil();
@@ -776,5 +803,8 @@ async function init() {
   await verificarAdmin();
   await cargarVista("dashboard");
 }
+
+
+
 
 init();
