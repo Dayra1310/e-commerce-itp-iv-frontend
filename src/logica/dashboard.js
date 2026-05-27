@@ -715,10 +715,8 @@ async function cargarPerfilDesdeBackend() {
     rolUsuario.textContent = data.rol || "Sin rol";
 
     // Imagen: si viene null o vacío, usar default.jpg
-    let imagenUrl = "http://localhost:3001/uploadls/default.jpg";
-    if (data.imagen && data.imagen !== "default.jpg") {
-      imagenUrl = `http://localhost:3001/uploads/${data.imagen}`;
-    }
+    let imagenUrl = `http://localhost:3001/uploads/${data.imagen}`;
+    
     fotoDePerfil.src = imagenUrl;
     imagenGrande.src = imagenUrl;
   } catch (error) {
