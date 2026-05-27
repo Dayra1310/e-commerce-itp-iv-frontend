@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+src/logica/node_modules
+# Backend                                        
+e-commerce-itp-iv-backend/node_modules/
+e-commerce-itp-iv-backend/dist/
+
+# Frontend
+e-commerce-itp-iv-frontend/node_modules/
+e-commerce-itp-iv-frontend/.next/ 
