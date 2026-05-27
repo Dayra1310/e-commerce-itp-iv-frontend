@@ -17,8 +17,11 @@ dashboard, autenticación con JWT y gestión de productos.
 ## Instalación
 
 ``` bash
+# 1. Backend
+cd e-commerce-itp-iv-backend
+npm install
+
 # 2. Frontend
-git clone https://github.com/Dayra1310/e-commerce-itp-iv-frontend/
 cd e-commerce-itp-iv-frontend
 npm install
 ```

@@ -1,59 +1,39 @@
-const API_BASE_URL =  "http://localhost:3001";
-const formularioInicio = document.getElementById("formulario_inicio");
-const botonLogin = document.getElementById("btnLogin");
+const form = document.getElementById("formulario_inicio");
 
-const validarEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email ?? "").trim());
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-async function leerRespuestaJson(respuesta) {
-  try {
-    return await respuesta.json();
-  } catch (_error) {
-    return { ok: false, message: "Respuesta inválida del servidor" };
-  }
-}
+  const email = document.getElementById("correo").value.trim();
+  const password = document.getElementById("contraseña").value.trim();
 
-formularioInicio.addEventListener("submit", async (evento) => {
-  evento.preventDefault();
-
-  const email = document.getElementById("correo").value.trim().toLowerCase();
-  const password = document.getElementById("contraseña").value;
-
-  if (!validarEmail(email)) {
+  if (!email || !password) {
     Swal.fire({
       icon: "warning",
-      title: "Datos incompletos",
-      text: "Ingresa un correo válido y tu contraseña",
-    });
-    return;
-  }
-
-  if (!password) {
-    Swal.fire({
-      icon: "warning",
-      title: "Datos incompletos",
-      text: "Ingresa un correo válido y tu contraseña",
+      title: "Campos vacíos",
+      text: "Completa todos los campos"
     });
     return;
   }
 
   try {
-    botonLogin.disabled = true;
-    botonLogin.textContent = "Ingresando...";
 
-    const respuesta = await fetch(`${API_BASE_URL}/login`, {
+    const res = await fetch("http://localhost:3001/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       credentials: "include",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ email, password })
     });
 
-    const datos = await leerRespuestaJson(respuesta);
+    const data = await res.json();
 
-    if (!respuesta.ok) {
+    // ❌ error de login
+    if (!data.ok) {
       Swal.fire({
         icon: "error",
-        title: "No se pudo iniciar sesión",
-        text: datos.message ?? "Credenciales incorrectas",
+        title: "Error",
+        text: data.message || "Credenciales incorrectas"
       });
       return;
     }
@@ -61,24 +41,23 @@ formularioInicio.addEventListener("submit", async (evento) => {
     Swal.fire({
       icon: "success",
       title: "Bienvenido",
-      text: datos.message ?? "Login exitoso",
+      text: data.message,
       timer: 1200,
-      showConfirmButton: false,
+      showConfirmButton: false
     });
 
     setTimeout(() => {
       window.location.href = "dashboard.html";
     }, 1200);
+
   } catch (error) {
-    console.error("Error en login:", error);
+
+    console.log(error);
 
     Swal.fire({
       icon: "error",
-      title: "Error de conexión",
-      text: "No se pudo conectar al servidor backend",
+      title: "Error",
+      text: "No se pudo conectar al servidor"
     });
-  } finally {
-    botonLogin.disabled = false;
-    botonLogin.textContent = "Ingresar";
   }
 });

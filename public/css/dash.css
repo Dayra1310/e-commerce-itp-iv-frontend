@@ -631,3 +631,127 @@ RESPONSIVE
     overflow-x: auto;
   }
 }
+/* =========================
+MÓDULO USUARIOS - CORRECCIÓN
+========================= */
+.usuarios-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+.usuarios-header h2 {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+body.dark .usuarios-header h2 {
+  color: #f3f4f6;
+}
+
+#tabla-usuarios td {
+  vertical-align: middle;
+}
+
+.usuarios-vacio {
+  text-align: center;
+  padding: 26px 16px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+body.dark .usuarios-vacio {
+  color: #94a3b8;
+}
+
+.badge-rol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 96px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+body.dark .badge-rol {
+  background: #1e3a5f;
+  color: #93c5fd;
+}
+
+.acciones-usuarios {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-accion-usuario {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #ffffff;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.btn-editar-usuario {
+  background: #2563eb;
+}
+
+.btn-editar-usuario:hover {
+  background: #1d4ed8;
+}
+
+.btn-eliminar-usuario {
+  background: #dc2626;
+}
+
+.btn-eliminar-usuario:hover {
+  background: #b91c1c;
+}
+
+.modal-usuario {
+  border-radius: 22px !important;
+}
+
+.formulario-usuario-swal {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.formulario-usuario-swal .swal2-input {
+  width: 100% !important;
+  margin: 0 !important;
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  box-shadow: none;
+  font-size: 15px;
+}
+
+.formulario-usuario-swal select.swal2-input {
+  cursor: pointer;
+}
+
+body.dark .modal-usuario {
+  background: #111827 !important;
+  color: #f3f4f6 !important;
+}
+
+body.dark .formulario-usuario-swal .swal2-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #f3f4f6;
+}
