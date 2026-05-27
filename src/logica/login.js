@@ -1,7 +1,12 @@
-const form = document.getElementById("formulario_inicio");
+const formularioInicio = document.getElementById("formulario_inicio");
+const clienteApi = window.clienteApi;
 
-form.addEventListener("submit", async (e) => {
-  e.preventDefault();
+if (!clienteApi) {
+  console.error("No se encontró window.clienteApi. Revisa que configuracion-api.js cargue antes de login.js");
+}
+
+formularioInicio.addEventListener("submit", async (evento) => {
+  evento.preventDefault();
 
   const email = document.getElementById("correo").value.trim();
   const password = document.getElementById("contraseña").value.trim();
@@ -16,32 +21,15 @@ form.addEventListener("submit", async (e) => {
   }
 
   try {
-
-    const res = await fetch("http://localhost:3001/login", {
+    const datos = await clienteApi.solicitarJson("/login", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      credentials: "include",
       body: JSON.stringify({ email, password })
     });
-
-    const data = await res.json();
-
-    // ❌ error de login
-    if (!data.ok) {
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: data.message || "Credenciales incorrectas"
-      });
-      return;
-    }
 
     Swal.fire({
       icon: "success",
       title: "Bienvenido",
-      text: data.message,
+      text: datos.message || "Inicio de sesión correcto",
       timer: 1200,
       showConfirmButton: false
     });
@@ -49,15 +37,13 @@ form.addEventListener("submit", async (e) => {
     setTimeout(() => {
       window.location.href = "dashboard.html";
     }, 1200);
-
   } catch (error) {
-
-    console.log(error);
+    console.error(error);
 
     Swal.fire({
       icon: "error",
-      title: "Error",
-      text: "No se pudo conectar al servidor"
+      title: error.status === 401 ? "Credenciales incorrectas" : "Error",
+      text: error.message || "No se pudo conectar al servidor"
     });
   }
 });

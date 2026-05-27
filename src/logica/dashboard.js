@@ -1,6 +1,93 @@
-// ======================== dashboard.js (unificado y sin pravatar) ========================
+// ==========================================================
+// dashboard.js
+// Implementación conectada al backend real del proyecto.
+// Backend disponible según index.js:
+// POST /login, POST /logout, GET /admin, GET /perfil,
+// GET /usuarios, GET /roles, POST /agregarUsuario,
+// PUT /usuario/:id, DELETE /eliminarUsuario/:id,
+// PUT /usuario/imagen, GET /uploads/:archivo
+// ==========================================================
 
-// ---------- Modo oscuro sin localStorage ----------
+const clienteApi = window.clienteApi;
+const RUTA_IMAGEN_RESPALDO = "../../public/img/avatar-default.svg";
+const TAMANIO_MAXIMO_IMAGEN_BYTES = 20 * 1024 * 1024;
+const TIPOS_IMAGEN_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+
+const estadoDashboard = {
+  usuarios: [],
+  roles: [],
+  busquedaActividad: ""
+};
+
+const elementos = {
+  vista: document.getElementById("vista"),
+  enlacesMenu: document.querySelectorAll(".menu a"),
+  nombreUsuario: document.getElementById("nombreUsuario"),
+  rolUsuario: document.getElementById("rolUsuario"),
+  fotoDePerfil: document.getElementById("fotoDePerfil"),
+  inputImagen: document.getElementById("inputImagen"),
+  modalImagen: document.getElementById("modalImagen"),
+  imagenGrande: document.getElementById("imagenGrande"),
+  btnEditarImagen: document.getElementById("btnEditarImagen")
+};
+
+if (!clienteApi) {
+  console.error("No se encontró window.clienteApi. Revisa que configuracion-api.js cargue antes de dashboard.js");
+}
+
+function escaparHtml(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatearMoneda(valor) {
+  return new Intl.NumberFormat("es-CO", {
+    style: "currency",
+    currency: "COP",
+    maximumFractionDigits: 0
+  }).format(Number(valor || 0));
+}
+
+function formatearFechaActual() {
+  const fecha = new Date().toLocaleDateString("es-CO", {
+    hour: "numeric",
+    minute: "numeric",
+    hour12: true,
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric"
+  });
+
+  return fecha.charAt(0).toUpperCase() + fecha.slice(1);
+}
+
+function construirUrlImagen(nombreImagen) {
+  if (!nombreImagen) return RUTA_IMAGEN_RESPALDO;
+  return clienteApi.construirUrlImagen(nombreImagen);
+}
+
+function redirigirALogin() {
+  window.location.href = "login.html";
+}
+
+function mostrarErrorServidor(error, mensajePorDefecto = "No se pudo completar la operación") {
+  console.error(error);
+
+  Swal.fire({
+    icon: "error",
+    title: error.status === 401 ? "Sesión expirada" : "Error",
+    text: error.message || mensajePorDefecto
+  });
+}
+
+// ==========================================================
+// Tema oscuro con cookie
+// ==========================================================
 function guardarTemaEnCookie(modoOscuroActivo) {
   const tema = modoOscuroActivo ? "oscuro" : "claro";
   document.cookie = `tema=${tema}; path=/; max-age=31536000; SameSite=Lax`;
@@ -11,9 +98,16 @@ function obtenerTemaDesdeCookie() {
     .split("; ")
     .find((cookie) => cookie.startsWith("tema="));
 
-  if (!cookieTema) return false;
+  return cookieTema ? cookieTema.split("=")[1] === "oscuro" : false;
+}
 
-  return cookieTema.split("=")[1] === "oscuro";
+function actualizarIconoDark() {
+  const boton = document.getElementById("btn-dark-mode");
+  if (!boton) return;
+
+  boton.innerHTML = document.body.classList.contains("dark")
+    ? "Modo claro"
+    : "Modo oscuro";
 }
 
 function aplicarTema(modoOscuroActivo) {
@@ -25,153 +119,338 @@ function aplicarTema(modoOscuroActivo) {
   actualizarIconoDark();
 }
 
-function toggleDarkMode() {
+function alternarModoOscuro() {
   const modoOscuroActivo = !document.body.classList.contains("dark");
   aplicarTema(modoOscuroActivo);
   guardarTemaEnCookie(modoOscuroActivo);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  aplicarTema(obtenerTemaDesdeCookie());
-});
+// ==========================================================
+// Consumo del backend
+// ==========================================================
+async function obtenerPerfilDesdeBackend() {
+  const datos = await clienteApi.solicitarJson("/perfil", {
+    method: "GET"
+  });
 
-function actualizarIconoDark() {
-  const btn = document.getElementById("btn-dark-mode");
-  if (!btn) return;
-  const isDark = document.body.classList.contains("dark");
-  btn.innerHTML = isDark ? "Modo claro" : "Modo oscuro";
+  elementos.nombreUsuario.textContent = datos.nombre || "Usuario";
+  elementos.rolUsuario.textContent = datos.rol || "Sin rol";
+
+  const urlImagen = construirUrlImagen(datos.imagen);
+  elementos.fotoDePerfil.src = urlImagen;
+  elementos.imagenGrande.src = urlImagen;
+
+  elementos.fotoDePerfil.onerror = () => {
+    elementos.fotoDePerfil.src = RUTA_IMAGEN_RESPALDO;
+  };
+
+  elementos.imagenGrande.onerror = () => {
+    elementos.imagenGrande.src = RUTA_IMAGEN_RESPALDO;
+  };
 }
 
-// ---------- Elementos DOM ----------
-const vista = document.getElementById("vista");
-const links = document.querySelectorAll(".menu a");
-const nombreUsuario = document.getElementById("nombreUsuario");
-const rolUsuario = document.getElementById("rolUsuario");
-const fotoDePerfil = document.getElementById("fotoDePerfil");
-const inputImagen = document.getElementById("inputImagen");
-const modalImagen = document.getElementById("modalImagen");
-const imagenGrande = document.getElementById("imagenGrande");
-const btnEditarImagen = document.getElementById("btnEditarImagen");
+async function verificarAdministrador() {
+  try {
+    await clienteApi.solicitarJson("/admin", {
+      method: "GET"
+    });
 
-// ========================
-// SWEETALERT GLOBAL OSCURO
-// ========================
-
-const swalDark = {
-  position: "bottom",
-
-  customClass: {
-    popup: "swal-dark"
-  },
-
-  showClass: {
-    popup: `
-      animate__animated
-      animate__fadeInUp
-      animate__faster
-    `
-  },
-
-  hideClass: {
-    popup: `
-      animate__animated
-      animate__fadeOutDown
-      animate__faster
-    `
-  }
-};
-
-
-
-// ---------- Datos de ejemplo para vistas ----------
-const datos = {
-  productos: [
-    { nombre: "Laptop", precio: "$1200" },
-    { nombre: "Mouse", precio: "$20" },
-  ],
-  usuarios: [],
-};
-
-const vistas = {
-  dashboard: `<h2>Dashboard</h2>`,
-  productos: `
-    <h2>Productos</h2>
-    <table>
-      <thead><tr><th>Nombre</th><th>Precio</th></tr></thead>
-      <tbody id="tabla-productos"></tbody>
-    </table>
-  `,
-  reportes: `<h2>Reportes</h2><p>No hay datos aún</p>`,
-
-  usuarios: `
-  <div class="usuarios-header">
-    <h2>Usuarios</h2>
-    <button id="btn-agregar-usuario">
-       <i class='bx bx-plus'></i>
-        <span>Agregar usuario</span>
-    </button>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Correo</th>
-        <th>Teléfono</th>
-        <th>Rol</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody id="tabla-usuarios"></tbody>
-  </table>
-`,
-};
-
-function cargarVista(nombre) {
-
-  vista.innerHTML = vistas[nombre];
-  if (nombre === "productos") {
-    const tbody = document.getElementById("tabla-productos");
-    tbody.innerHTML = datos.productos
-      .map((p) => `<tr><td>${p.nombre}</td><td>${p.precio}</td></tr>`)
-      .join("");
-  }
-  if (nombre === "usuarios") {
-
-  obtenerUsuarios();
-
-  document
-    .getElementById("btn-agregar-usuario")
-    .addEventListener("click", agregarUsuario);
+    await obtenerPerfilDesdeBackend();
+  } catch (error) {
+    console.error(error);
+    redirigirALogin();
   }
 }
 
+async function obtenerUsuarios() {
+  const datos = await clienteApi.solicitarJson("/usuarios", {
+    method: "GET"
+  });
 
-// ---------- Usuarios ----------
-
-
-function escaparHtml(valor) {
-  return String(valor ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+  estadoDashboard.usuarios = Array.isArray(datos.usuarios) ? datos.usuarios : [];
+  return estadoDashboard.usuarios;
 }
 
 async function obtenerRolesDisponibles() {
-  const respuesta = await fetch("http://localhost:3001/roles", {
-    credentials: "include"
+  const datos = await clienteApi.solicitarJson("/roles", {
+    method: "GET"
   });
 
-  const data = await respuesta.json();
+  estadoDashboard.roles = Array.isArray(datos.roles) ? datos.roles : [];
+  return estadoDashboard.roles;
+}
 
-  if (!respuesta.ok || !data.ok) {
-    throw new Error(data.message || "No se pudieron cargar los roles");
+// ==========================================================
+// Vistas principales
+// ==========================================================
+const vistas = {
+  productos: `
+    <div class="usuarios-header">
+      <h2>Productos</h2>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <p>
+        El backend actual no expone un endpoint de productos. Para evitar datos falsos,
+        esta vista queda lista para conectarse cuando exista una ruta real como
+        <strong>GET /productos</strong>.
+      </p>
+    </div>
+  `,
+
+  reportes: `
+    <div class="usuarios-header">
+      <h2>Reportes</h2>
+    </div>
+    <div class="card" style="margin-top:16px;">
+      <p>
+        El backend actual no expone endpoints de ventas, pedidos o reportes. El dashboard
+        ya no muestra números quemados; solo presenta información que viene del backend real.
+      </p>
+    </div>
+  `,
+
+  usuarios: `
+    <div class="usuarios-header">
+      <h2>Usuarios</h2>
+      <button id="btn-agregar-usuario">
+        <i class='bx bx-plus'></i>
+        <span>Agregar usuario</span>
+      </button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Correo</th>
+          <th>Teléfono</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-usuarios"></tbody>
+    </table>
+  `
+};
+
+function construirVistaDashboard() {
+  return `
+    <div class="dash-header">
+      <div>
+        <h1>Panel de control</h1>
+        <span class="dash-fecha">${formatearFechaActual()}</span>
+      </div>
+    </div>
+
+    <div class="parent">
+      <div class="card stat-card div1">
+        <div class="stat-label">Usuarios administrativos</div>
+        <div class="stat-val" id="valor-total-usuarios">...</div>
+        <span class="stat-badge">Backend: /usuarios</span>
+      </div>
+
+      <div class="card stat-card div2">
+        <div class="stat-label">Roles disponibles</div>
+        <div class="stat-val" id="valor-total-roles">...</div>
+        <span class="stat-badge">Backend: /roles</span>
+      </div>
+
+      <div class="card stat-card div3">
+        <div class="stat-label">Sesión</div>
+        <div class="stat-val" id="valor-estado-sesion">Activa</div>
+        <span class="stat-badge">Backend: /admin</span>
+      </div>
+
+      <div class="card div4" style="flex-direction:column; align-items:flex-start;">
+        <div class="metric-title">Resumen del backend</div>
+        <p id="resumen-backend" style="line-height:1.6; margin-top:12px;">
+          Cargando datos del servidor...
+        </p>
+      </div>
+
+      <div class="card div5-chart" style="flex-direction:column; align-items:flex-start;">
+        <div class="metric-title">Estado de integración</div>
+        <p style="line-height:1.6; margin-top:12px;">
+          Conectado a:<br>
+          <strong>${escaparHtml(clienteApi.baseUrl)}</strong>
+        </p>
+      </div>
+
+      <div class="card div6-activity">
+        <div class="activity-header">
+          <div class="metric-title">Usuarios recientes</div>
+          <input type="text" id="buscar-usuario-dashboard" placeholder="Buscar usuario...">
+        </div>
+
+        <div class="activity-table-wrapper">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Teléfono</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-dashboard-usuarios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function cargarVista(nombre) {
+  if (!elementos.vista) return;
+
+  if (nombre === "dashboard") {
+    elementos.vista.innerHTML = construirVistaDashboard();
+    await cargarDatosDashboard();
+    return;
   }
 
-  return data.roles || [];
+  elementos.vista.innerHTML = vistas[nombre] || construirVistaDashboard();
+
+  if (nombre === "usuarios") {
+    await cargarVistaUsuarios();
+  }
+
+  actualizarIconoDark();
+}
+
+async function cargarDatosDashboard() {
+  try {
+    const [usuarios, roles] = await Promise.all([
+      obtenerUsuarios(),
+      obtenerRolesDisponibles()
+    ]);
+
+    document.getElementById("valor-total-usuarios").textContent = usuarios.length;
+    document.getElementById("valor-total-roles").textContent = roles.length;
+    document.getElementById("valor-estado-sesion").textContent = "Activa";
+
+    const resumenBackend = document.getElementById("resumen-backend");
+    if (resumenBackend) {
+      resumenBackend.innerHTML = `
+        El dashboard está usando endpoints reales del backend:
+        <strong>${usuarios.length}</strong> usuario(s) administrativo(s) y
+        <strong>${roles.length}</strong> rol(es) disponibles.
+        No se muestran ventas ni pedidos porque el backend actual no tiene esas rutas implementadas.
+      `;
+    }
+
+    const inputBusqueda = document.getElementById("buscar-usuario-dashboard");
+    if (inputBusqueda) {
+      inputBusqueda.addEventListener("input", () => {
+        estadoDashboard.busquedaActividad = inputBusqueda.value.trim().toLowerCase();
+        renderizarUsuariosDashboard();
+      });
+    }
+
+    renderizarUsuariosDashboard();
+  } catch (error) {
+    mostrarErrorServidor(error, "No se pudo cargar el dashboard");
+  }
+}
+
+function renderizarUsuariosDashboard() {
+  const tbody = document.getElementById("tabla-dashboard-usuarios");
+  if (!tbody) return;
+
+  const busqueda = estadoDashboard.busquedaActividad;
+  const usuariosFiltrados = estadoDashboard.usuarios.filter((usuario) => {
+    const texto = `${usuario.nombre} ${usuario.email} ${usuario.nombre_rol} ${usuario.telefono}`.toLowerCase();
+    return texto.includes(busqueda);
+  });
+
+  if (usuariosFiltrados.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="usuarios-vacio">No hay usuarios para mostrar</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = usuariosFiltrados
+    .slice(0, 10)
+    .map((usuario) => `
+      <tr>
+        <td>#${Number(usuario.id)}</td>
+        <td>${escaparHtml(usuario.nombre)}</td>
+        <td>${escaparHtml(usuario.email)}</td>
+        <td><span class="badge-rol">${escaparHtml(usuario.nombre_rol)}</span></td>
+        <td>${escaparHtml(usuario.telefono)}</td>
+      </tr>
+    `)
+    .join("");
+}
+
+// ==========================================================
+// Vista Usuarios + CRUD
+// ==========================================================
+async function cargarVistaUsuarios() {
+  const botonAgregarUsuario = document.getElementById("btn-agregar-usuario");
+  if (botonAgregarUsuario) {
+    botonAgregarUsuario.addEventListener("click", agregarUsuario);
+  }
+
+  await cargarUsuariosTabla();
+}
+
+async function cargarUsuariosTabla() {
+  try {
+    await obtenerUsuarios();
+    renderizarUsuariosTabla();
+  } catch (error) {
+    mostrarErrorServidor(error, "No se pudieron cargar los usuarios");
+  }
+}
+
+function renderizarUsuariosTabla() {
+  const tbody = document.getElementById("tabla-usuarios");
+  if (!tbody) return;
+
+  if (estadoDashboard.usuarios.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="usuarios-vacio">No hay usuarios registrados</td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = estadoDashboard.usuarios
+    .map((usuario) => `
+      <tr>
+        <td>${escaparHtml(usuario.nombre)}</td>
+        <td>${escaparHtml(usuario.email)}</td>
+        <td>${escaparHtml(usuario.telefono)}</td>
+        <td><span class="badge-rol">${escaparHtml(usuario.nombre_rol)}</span></td>
+        <td class="acciones-usuarios">
+          <button type="button" class="btn-accion-usuario btn-editar-usuario" data-id="${Number(usuario.id)}" title="Editar usuario">
+            <i class='bx bx-edit'></i>
+          </button>
+          <button type="button" class="btn-accion-usuario btn-eliminar-usuario" data-id="${Number(usuario.id)}" title="Eliminar usuario">
+            <i class='bx bx-trash'></i>
+          </button>
+        </td>
+      </tr>
+    `)
+    .join("");
+
+  tbody.querySelectorAll(".btn-editar-usuario").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const id = Number(boton.dataset.id);
+      const usuario = estadoDashboard.usuarios.find((item) => Number(item.id) === id);
+      if (usuario) editarUsuario(usuario);
+    });
+  });
+
+  tbody.querySelectorAll(".btn-eliminar-usuario").forEach((boton) => {
+    boton.addEventListener("click", () => eliminarUsuario(Number(boton.dataset.id)));
+  });
 }
 
 function construirOpcionesRoles(roles, rolSeleccionado = null) {
@@ -204,169 +483,22 @@ function validarFormularioUsuario({ nombre, email, telefono, password, rol_id },
   return null;
 }
 
-// ========================
-// OBTENER USUARIOS
-// ========================
-
-async function obtenerUsuarios() {
-
-  try {
-
-    const respuesta = await fetch(
-      "http://localhost:3001/usuarios",
-      {
-        credentials: "include"
-      }
-    );
-
-    const data = await respuesta.json();
-
-    datos.usuarios = data.usuarios;
-
-    renderUsuarios();
-
-  } catch (error) {
-
-    console.log(error);
-
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "No se pudieron cargar los usuarios"
-    });
-  }
-}
-
-// ========================
-// RENDER USUARIOS
-// ========================
-
-function renderUsuarios() {
-
-  const tbody = document.getElementById("tabla-usuarios");
-
-  if (!tbody) return;
-
-  if (!Array.isArray(datos.usuarios) || datos.usuarios.length === 0) {
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="5" class="usuarios-vacio">No hay usuarios registrados</td>
-      </tr>
-    `;
-    return;
-  }
-
-  tbody.innerHTML = datos.usuarios.map(usuario => `
-    <tr>
-      <td>${escaparHtml(usuario.nombre)}</td>
-      <td>${escaparHtml(usuario.email)}</td>
-      <td>${escaparHtml(usuario.telefono)}</td>
-      <td>
-        <span class="badge-rol">${escaparHtml(usuario.nombre_rol)}</span>
-      </td>
-      <td class="acciones-usuarios">
-        <button type="button" class="btn-accion-usuario btn-editar-usuario" data-id="${Number(usuario.id)}" title="Editar usuario">
-          <i class='bx bx-edit'></i>
-        </button>
-        <button type="button" class="btn-accion-usuario btn-eliminar-usuario" data-id="${Number(usuario.id)}" title="Eliminar usuario">
-          <i class='bx bx-trash'></i>
-        </button>
-      </td>
-    </tr>
-  `).join("");
-
-  tbody.querySelectorAll(".btn-editar-usuario").forEach((boton) => {
-    boton.addEventListener("click", () => {
-      const id = Number(boton.dataset.id);
-      const usuario = datos.usuarios.find((item) => Number(item.id) === id);
-      if (usuario) editarUsuario(usuario);
-    });
-  });
-
-  tbody.querySelectorAll(".btn-eliminar-usuario").forEach((boton) => {
-    boton.addEventListener("click", () => eliminarUsuario(Number(boton.dataset.id)));
-  });
-
-}
-
-async function obtenerPedidosDashboard() {
-
-  try {
-
-    const respuesta = await fetch("http://localhost:3001/dashboard/pedidos",
-      {
-        credentials: "include"
-      }
-    );
-
-    const data = await respuesta.json();
-
-    if (!data.ok) return;
-
-    renderPedidosDashboard(data.pedidos);
-
-  } catch (error) {
-
-    console.log(error);
-  }
-}
-
-
-function renderPedidosDashboard(pedidos) {
-
-  const tbody = document.getElementById("tabla-dashboard-pedidos");
-  if (!tbody) return;
-
-  tbody.innerHTML = pedidos.map(pedido => `
-
-    <tr>
-
-      <td>#${pedido.id}</td>
-
-      <td>${pedido.cliente}</td>
-
-      <td>Pedido</td>
-
-      <td>$${Number(pedido.total).toLocaleString()}</td>
-
-      <td>
-        <span class="status-pill ${pedido.estado.toLowerCase()}">
-          ${pedido.estado}
-        </span>
-      </td>
-
-    </tr>
-
-  `).join("");
-}
-
-// ========================
-// AGREGAR USUARIO
-// ========================
-
 async function agregarUsuario() {
-
   let opcionesRoles = "";
 
   try {
     const roles = await obtenerRolesDisponibles();
     opcionesRoles = construirOpcionesRoles(roles);
   } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.message || "No se pudieron cargar los roles"
-    });
+    mostrarErrorServidor(error, "No se pudieron cargar los roles");
     return;
   }
 
   Swal.fire({
-
     title: "Agregar Usuario",
     customClass: {
       popup: "modal-usuario"
     },
-
     html: `
       <div class="formulario-usuario-swal">
         <input id="swal-nombre" class="swal2-input" placeholder="Nombre completo">
@@ -379,14 +511,11 @@ async function agregarUsuario() {
         </select>
       </div>
     `,
-
     confirmButtonText: "Agregar",
     cancelButtonText: "Cancelar",
     showCancelButton: true,
     focusConfirm: false,
-
     preConfirm: async () => {
-
       const nombre = document.getElementById("swal-nombre").value.trim();
       const email = document.getElementById("swal-email").value.trim();
       const telefono = document.getElementById("swal-telefono").value.trim();
@@ -400,84 +529,47 @@ async function agregarUsuario() {
       }
 
       try {
-
-        const respuesta = await fetch(
-          "http://localhost:3001/agregarUsuario",
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              nombre,
-              email,
-              telefono,
-              password,
-              rol_id
-            })
-          }
-        );
-
-        const data = await respuesta.json();
-
-        if (!respuesta.ok || !data.ok) {
-          Swal.showValidationMessage(data.message || "No se pudo agregar el usuario");
-          return false;
-        }
+        await clienteApi.solicitarJson("/agregarUsuario", {
+          method: "POST",
+          body: JSON.stringify({ nombre, email, telefono, password, rol_id })
+        });
 
         return true;
-
       } catch (error) {
-        console.log(error);
-        Swal.showValidationMessage("Error del servidor");
+        Swal.showValidationMessage(error.message || "No se pudo agregar el usuario");
         return false;
       }
     }
+  }).then((resultado) => {
+    if (!resultado.isConfirmed) return;
 
-  }).then((result) => {
+    Swal.fire({
+      icon: "success",
+      title: "Usuario agregado",
+      timer: 1500,
+      showConfirmButton: false
+    });
 
-    if (result.isConfirmed) {
-
-      Swal.fire({
-        icon: "success",
-        title: "Usuario agregado",
-        timer: 1500,
-        showConfirmButton: false
-      });
-
-      obtenerUsuarios();
-    }
+    cargarUsuariosTabla();
   });
 }
 
-// ========================
-// EDITAR USUARIO
-// ========================
-
 async function editarUsuario(usuario) {
-
   let opcionesRoles = "";
 
   try {
     const roles = await obtenerRolesDisponibles();
     opcionesRoles = construirOpcionesRoles(roles, usuario.rol_id);
   } catch (error) {
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: error.message || "No se pudieron cargar los roles"
-    });
+    mostrarErrorServidor(error, "No se pudieron cargar los roles");
     return;
   }
 
   Swal.fire({
-
     title: "Editar Usuario",
     customClass: {
       popup: "modal-usuario"
     },
-
     html: `
       <div class="formulario-usuario-swal">
         <input id="edit-nombre" class="swal2-input" value="${escaparHtml(usuario.nombre)}" placeholder="Nombre completo">
@@ -490,14 +582,11 @@ async function editarUsuario(usuario) {
         </select>
       </div>
     `,
-
     confirmButtonText: "Guardar",
     cancelButtonText: "Cancelar",
     showCancelButton: true,
     focusConfirm: false,
-
     preConfirm: async () => {
-
       const nombre = document.getElementById("edit-nombre").value.trim();
       const email = document.getElementById("edit-email").value.trim();
       const telefono = document.getElementById("edit-telefono").value.trim();
@@ -510,100 +599,51 @@ async function editarUsuario(usuario) {
         return false;
       }
 
+      const datosUsuario = { nombre, email, telefono, rol_id };
+      if (password) datosUsuario.password = password;
+
       try {
-
-        const body = {
-          nombre,
-          email,
-          telefono,
-          rol_id
-        };
-
-        if (password !== "") {
-          body.password = password;
-        }
-
-        const respuesta = await fetch(
-          `http://localhost:3001/usuario/${Number(usuario.id)}`,
-          {
-            method: "PUT",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(body)
-          }
-        );
-
-        const data = await respuesta.json();
-
-        if (!respuesta.ok || !data.ok) {
-          Swal.showValidationMessage(data.message || "No se pudo actualizar el usuario");
-          return false;
-        }
+        await clienteApi.solicitarJson(`/usuario/${Number(usuario.id)}`, {
+          method: "PUT",
+          body: JSON.stringify(datosUsuario)
+        });
 
         return true;
-
       } catch (error) {
-        console.log(error);
-        Swal.showValidationMessage("Error del servidor");
+        Swal.showValidationMessage(error.message || "No se pudo actualizar el usuario");
         return false;
       }
     }
+  }).then((resultado) => {
+    if (!resultado.isConfirmed) return;
 
-  }).then((result) => {
+    Swal.fire({
+      icon: "success",
+      title: "Usuario actualizado",
+      timer: 1500,
+      showConfirmButton: false
+    });
 
-    if (result.isConfirmed) {
-
-      Swal.fire({
-        icon: "success",
-        title: "Usuario actualizado",
-        timer: 1500,
-        showConfirmButton: false
-      });
-
-      obtenerUsuarios();
-    }
+    cargarUsuariosTabla();
   });
 }
 
-// ========================
-// ELIMINAR USUARIO
-// ========================
 async function eliminarUsuario(id) {
-
   const confirmacion = await Swal.fire({
     title: "Eliminar usuario",
     text: "Esta acción no se puede deshacer",
     icon: "warning",
     showCancelButton: true,
-    confirmButtonText: "Eliminar"
+    confirmButtonText: "Eliminar",
+    cancelButtonText: "Cancelar"
   });
 
   if (!confirmacion.isConfirmed) return;
 
   try {
-
-    const respuesta = await fetch(
-      `http://localhost:3001/eliminarUsuario/${id}`,
-      {
-        method: "DELETE",
-        credentials: "include"
-      }
-    );
-
-    const data = await respuesta.json();
-
-    if (!data.ok) {
-
-      Swal.fire({
-        icon: "error",
-        title: "Error",
-        text: data.message
-      });
-
-      return;
-    }
+    await clienteApi.solicitarJson(`/eliminarUsuario/${Number(id)}`, {
+      method: "DELETE"
+    });
 
     Swal.fire({
       icon: "success",
@@ -612,251 +652,107 @@ async function eliminarUsuario(id) {
       showConfirmButton: false
     });
 
-    obtenerUsuarios();
-
+    cargarUsuariosTabla();
   } catch (error) {
-
-    console.log(error);
-
-    Swal.fire({
-      icon: "error",
-      title: "Servidor",
-      text: "No se pudo eliminar"
-    });
+    mostrarErrorServidor(error, "No se pudo eliminar el usuario");
   }
 }
 
+// ==========================================================
+// Imagen de perfil
+// ==========================================================
+function validarImagen(archivo) {
+  if (!archivo) return "No seleccionaste ninguna imagen";
 
-
-
-
-// ---------- Dashboard mejorado ----------
-function cargarVistaDashboardMejorada() {
-  const fecha = new Date().toLocaleDateString("es-ES", {
-    hour: "numeric",
-    minute: "numeric",
-    hour12: true,
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-  return `
-    <div class="dash-header">
-      <div>
-        <h1>Panel de control</h1>
-        <span class="dash-fecha">${fecha.charAt(0).toUpperCase() + fecha.slice(1)}</span>
-      </div>
-    </div>
-    <div class="parent">
-      <div class="card stat-card div1"><div class="stat-label">Ventas del mes</div><div class="stat-val">$1.000.000</div></div>
-      <div class="card stat-card div2"><div class="stat-label">Pedidos activos</div><div class="stat-val">12</div></div>
-      <div class="card stat-card div3"><div class="stat-label">Pedidos Pendientes</div><div class="stat-val">6</div></div>
-      <div class="card div4" style="flex-direction:column; align-items:flex-start;"><div class="metric-title">Ventas por semana</div><div class="metric-placeholder">gráfica de barras</div></div>
-      <div class="card div5-chart" style="flex-direction:column; align-items:flex-start;"><div class="metric-title">Distribución</div><div class="metric-placeholder">gráfica circular</div></div>
-      
-      
-      <div class="card div6-activity">
-        <div class="activity-header">
-          <div class="metric-title">
-            Actividad reciente
-          </div>
-          <input
-            type="text"
-            id="buscar-pedido"
-            placeholder="Buscar pedido...">
-        </div>
-        <div class="activity-table-wrapper">
-          <table class="activity-table">
-            <thead>
-              <tr>
-                <th>#Pedido</th>
-                <th>Cliente</th>
-                <th>Producto</th>
-                <th>Total</th>
-                <th>Estado</th>
-              </tr>
-            </thead>
-            <tbody id="tabla-dashboard-pedidos"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-// ---------- Perfil (backend) ----------
-async function cargarPerfilDesdeBackend() {
-  try {
-    const res = await fetch("http://localhost:3001/perfil", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (res.status === 401) {
-      Swal.fire({
-        icon: "error",
-        title: "Sesión expirada",
-        text: "Debes iniciar sesión nuevamente",
-      });
-      setTimeout(() => {
-        window.location.href = "../page/login.html";
-      }, 1500);
-      return;
-    }
-
-    const data = await res.json();
-    if (!data.ok) return;
-
-    // Actualizar nombre y rol
-    nombreUsuario.textContent = data.nombre || "Usuario";
-    rolUsuario.textContent = data.rol || "Sin rol";
-
-    // Imagen: si viene null o vacío, usar default.jpg
-    let imagenUrl = `http://localhost:3001/uploads/${data.imagen}`;
-    
-    fotoDePerfil.src = imagenUrl;
-    imagenGrande.src = imagenUrl;
-  } catch (error) {
-    console.error(error);
-    Swal.fire({
-      icon: "error",
-      title: "Servidor",
-      text: "No se pudo cargar el perfil",
-    });
+  if (!TIPOS_IMAGEN_PERMITIDOS.includes(archivo.type)) {
+    return "Formato no permitido. Usa JPG, PNG, WEBP o GIF";
   }
-}
 
-// ---------- Verificar admin (protege dashboard) ----------
-async function verificarAdmin() {
-  try {
-    const respuesta = await fetch("http://localhost:3001/admin", {
-      credentials: "include",
-    });
-    const datos = await respuesta.json();
-    if (!datos.ok) {
-      window.location.href = "../page/login.html";
-    } else {
-      cargarPerfilDesdeBackend();
-    }
-  } catch (error) {
-    console.log(error);
-    window.location.href = "../page/login.html";
+  if (archivo.size > TAMANIO_MAXIMO_IMAGEN_BYTES) {
+    return "La imagen supera los 20 MB";
   }
+
+  return null;
 }
 
-// ---------- Subir imagen (evento desde el modal o desde configuración) ----------
 async function subirImagen(archivo) {
-  if (!archivo) return false;
+  const errorValidacion = validarImagen(archivo);
+  if (errorValidacion) {
+    Swal.fire({
+      icon: "warning",
+      title: "Imagen inválida",
+      text: errorValidacion
+    });
+    return false;
+  }
 
-  const formData = new FormData();
-  formData.append("imagen", archivo);
+  const datosFormulario = new FormData();
+  datosFormulario.append("imagen", archivo);
 
   try {
-    const respuesta = await fetch("http://localhost:3001/usuario/imagen", {
+    const datos = await clienteApi.solicitarJson("/usuario/imagen", {
       method: "PUT",
-      credentials: "include",
-      body: formData,
+      body: datosFormulario
     });
-    const datos = await respuesta.json();
 
-    if (!datos.ok) {
-      Swal.fire({ icon: "error", title: "Error", text: datos.message });
-      return false;
-    }
+    const nuevaUrlImagen = `${construirUrlImagen(datos.imagen)}?v=${Date.now()}`;
+    elementos.fotoDePerfil.src = nuevaUrlImagen;
+    elementos.imagenGrande.src = nuevaUrlImagen;
 
     await Swal.fire({
       icon: "success",
       title: "Imagen actualizada",
-      text: "La página se recargará para ver los cambios",
       timer: 1500,
-      showConfirmButton: false,
+      showConfirmButton: false
     });
 
-    // Recargar la página completa para reflejar la nueva imagen desde la BD
-    location.reload();
     return true;
   } catch (error) {
-    console.error(error);
-    Swal.fire({
-      icon: "error",
-      title: "Error",
-      text: "No se pudo subir la imagen",
-    });
+    mostrarErrorServidor(error, "No se pudo subir la imagen");
     return false;
   }
 }
 
-// ---------- Eventos del modal/foto de perfil ----------
-fotoDePerfil.addEventListener("click", () => {
-  imagenGrande.src = fotoDePerfil.src;
-  modalImagen.style.display = "flex";
-});
-
-modalImagen.addEventListener("click", (e) => {
-  if (e.target === modalImagen) modalImagen.style.display = "none";
-});
-
-btnEditarImagen.addEventListener("click", () => {
-  inputImagen.click();
-});
-
-inputImagen.addEventListener("change", async () => {
-  const archivo = inputImagen.files[0];
-  if (!archivo) return;
-  await subirImagen(archivo);
-  inputImagen.value = ""; // limpiar para permitir subir la misma imagen de nuevo
-});
-
-// ---------- Sidebar dinámico (botones, logout, configuración) ----------
+// ==========================================================
+// Sidebar, configuración y logout
+// ==========================================================
 function inyectarSidebar() {
   const sidebar = document.querySelector(".sidebar");
-  if (!sidebar) return;
+  const menu = document.querySelector(".menu");
+  if (!sidebar || !menu) return;
 
-  // Botón modo oscuro
   if (!document.getElementById("btn-dark-mode")) {
-    const btnDark = document.createElement("button");
-    btnDark.id = "btn-dark-mode";
-    btnDark.textContent = document.body.classList.contains("dark")
+    const botonModoOscuro = document.createElement("button");
+    botonModoOscuro.id = "btn-dark-mode";
+    botonModoOscuro.textContent = document.body.classList.contains("dark")
       ? "Modo claro"
       : "Modo oscuro";
-    btnDark.addEventListener("click", toggleDarkMode);
-    const menu = sidebar.querySelector(".menu");
-    if (menu) sidebar.insertBefore(btnDark, menu);
+    botonModoOscuro.addEventListener("click", alternarModoOscuro);
+    sidebar.insertBefore(botonModoOscuro, menu);
   }
 
-  // Enlace Configuración
-  const menu = sidebar.querySelector(".menu");
-  if (menu && !document.querySelector('[data-vista="configuracion"]')) {
-    const linkConfig = document.createElement("a");
-    linkConfig.href = "#";
-    linkConfig.setAttribute("data-vista", "configuracion");
-    linkConfig.textContent = "Configuración";
-    linkConfig.addEventListener("click", (e) => {
-      e.preventDefault();
-      document
-        .querySelectorAll(".menu a")
-        .forEach((l) => l.classList.remove("activo"));
-      linkConfig.classList.add("activo");
-      cargarVistaConfig();
-    });
-    menu.appendChild(linkConfig);
+  if (!document.querySelector('[data-vista="configuracion"]')) {
+    const enlaceConfiguracion = document.createElement("a");
+    enlaceConfiguracion.href = "#";
+    enlaceConfiguracion.dataset.vista = "configuracion";
+    enlaceConfiguracion.textContent = "Configuración";
+    menu.appendChild(enlaceConfiguracion);
   }
 
-  // Botón cerrar sesión
   if (!document.getElementById("btn-logout")) {
-    const btnLogout = document.createElement("button");
-    btnLogout.id = "btn-logout";
-    btnLogout.innerHTML = "Cerrar sesión";
-    btnLogout.addEventListener("click", () => {
-      document.getElementById("modal-logout").classList.add("visible");
+    const botonLogout = document.createElement("button");
+    botonLogout.id = "btn-logout";
+    botonLogout.innerHTML = "Cerrar sesión";
+    botonLogout.addEventListener("click", () => {
+      document.getElementById("modal-logout")?.classList.add("visible");
     });
-    sidebar.appendChild(btnLogout);
+    sidebar.appendChild(botonLogout);
   }
 }
 
-function inyectarModal() {
+function inyectarModalLogout() {
   if (document.getElementById("modal-logout")) return;
+
   const modal = document.createElement("div");
   modal.className = "modal-overlay";
   modal.id = "modal-logout";
@@ -870,69 +766,71 @@ function inyectarModal() {
       </div>
     </div>
   `;
+
   document.body.appendChild(modal);
 
   document.getElementById("modal-cancelar").addEventListener("click", () => {
     modal.classList.remove("visible");
   });
 
-  document
-    .getElementById("modal-confirmar")
-    .addEventListener("click", async () => {
-      try {
-        await fetch("http://localhost:3001/logout", {
-          method: "POST",
-          credentials: "include",
-        });
-      } catch (error) {
-        console.log("Error al cerrar sesión:", error);
-      }
-      window.location.href = "../page/login.html";
-    });
+  document.getElementById("modal-confirmar").addEventListener("click", async () => {
+    try {
+      await clienteApi.solicitarJson("/logout", {
+        method: "POST"
+      });
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
 
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) modal.classList.remove("visible");
+    redirigirALogin();
+  });
+
+  modal.addEventListener("click", (evento) => {
+    if (evento.target === modal) modal.classList.remove("visible");
   });
 }
 
-// ---------- Vista de Configuración (sin pravatar) ----------
 function cargarVistaConfig() {
-  if (!vista) return;
+  if (!elementos.vista) return;
 
-  const nombreActual = nombreUsuario.textContent || "";
-  const fotoActual = fotoDePerfil.src; // ya es local o default.jpg
-  const isDark = document.body.classList.contains("dark");
+  const nombreActual = elementos.nombreUsuario.textContent || "";
+  const fotoActual = elementos.fotoDePerfil.src || RUTA_IMAGEN_RESPALDO;
+  const modoOscuroActivo = document.body.classList.contains("dark");
 
-  vista.innerHTML = `
+  elementos.vista.innerHTML = `
     <div class="config-section">
       <h2>Configuración</h2>
+
       <div class="config-card">
         <h3>Foto de perfil</h3>
         <div class="foto-wrapper">
-          <img id="preview-foto" src="${fotoActual}" alt="Foto de perfil">
+          <img id="preview-foto" src="${escaparHtml(fotoActual)}" alt="Foto de perfil">
           <div class="foto-info">
             <label id="btn-foto-label" for="input-foto">Cambiar foto</label>
             <input type="file" id="input-foto" accept="image/*" style="display:none">
-            <p>Máximo 20 MB.</p>
-            <span id="foto-error">La imagen supera los 20 MB. Elige otra.</span>
+            <p>Máximo 20 MB. Formatos permitidos: JPG, PNG, WEBP o GIF.</p>
+            <span id="foto-error">La imagen no cumple las reglas de validación.</span>
           </div>
         </div>
       </div>
+
       <div class="config-card">
         <h3>Nombre de usuario</h3>
         <div class="config-field">
           <label for="input-nombre">Nombre visible</label>
-          <input type="text" id="input-nombre" value="${nombreActual}" placeholder="Tu nombre" maxlength="40">
+          <input type="text" id="input-nombre" value="${escaparHtml(nombreActual)}" placeholder="Tu nombre" maxlength="40" disabled>
         </div>
-        <button class="btn-guardar" id="btn-guardar-nombre">💾 Guardar nombre</button>
-        <div class="config-msg" id="msg-nombre">✅ Nombre guardado correctamente.</div>
+        <p class="config-msg" style="display:block;">
+          El backend actual permite consultar el perfil, pero no expone un endpoint para editar el nombre propio del usuario autenticado.
+        </p>
       </div>
+
       <div class="config-card">
         <h3>Apariencia</h3>
         <div class="toggle-row">
           <span>🌙 Modo oscuro</span>
           <label class="toggle">
-            <input type="checkbox" id="toggle-dark" ${isDark ? "checked" : ""}>
+            <input type="checkbox" id="toggle-dark" ${modoOscuroActivo ? "checked" : ""}>
             <span class="slider"></span>
           </label>
         </div>
@@ -940,86 +838,87 @@ function cargarVistaConfig() {
     </div>
   `;
 
-  // Lógica de cambio de foto en configuración
   const inputFoto = document.getElementById("input-foto");
-  const preview = document.getElementById("preview-foto");
-  const fotoError = document.getElementById("foto-error");
-  const MAX_BYTES = 20 * 1024 * 1024;
+  const previewFoto = document.getElementById("preview-foto");
+  const mensajeErrorFoto = document.getElementById("foto-error");
 
   inputFoto.addEventListener("change", async () => {
-    const file = inputFoto.files[0];
-    if (!file) return;
-    fotoError.style.display = "none";
-    if (file.size > MAX_BYTES) {
-      fotoError.style.display = "block";
+    const archivo = inputFoto.files[0];
+    const errorValidacion = validarImagen(archivo);
+
+    if (errorValidacion) {
+      mensajeErrorFoto.textContent = errorValidacion;
+      mensajeErrorFoto.style.display = "block";
       inputFoto.value = "";
       return;
     }
-    const exito = await subirImagen(file, preview);
+
+    mensajeErrorFoto.style.display = "none";
+    const exito = await subirImagen(archivo);
     if (exito) {
-      // Actualizar también la miniatura del sidebar
-      fotoDePerfil.src = preview.src;
-      imagenGrande.src = preview.src;
+      previewFoto.src = elementos.fotoDePerfil.src;
     }
     inputFoto.value = "";
   });
 
-  // Guardar nombre (solo frontend por ahora)
-  const btnGuardar = document.getElementById("btn-guardar-nombre");
-  const msgNombre = document.getElementById("msg-nombre");
-  btnGuardar.addEventListener("click", () => {
-    const nuevoNombre = document.getElementById("input-nombre").value.trim();
-    if (!nuevoNombre) return;
-    nombreUsuario.textContent = nuevoNombre;
-    msgNombre.style.display = "block";
-    setTimeout(() => (msgNombre.style.display = "none"), 3000);
-  });
-
-  // Modo oscuro desde config
-  document.getElementById("toggle-dark").addEventListener("change", () => {
-    toggleDarkMode();
-  });
+  document.getElementById("toggle-dark").addEventListener("change", alternarModoOscuro);
 }
 
-// ---------- Inicialización ----------
-function init() {
-  inyectarSidebar();
-  inyectarModal();
-  patchCargarVista(); // reemplaza cargarVista para usar dashboard mejorado
-  verificarAdmin(); // protege y carga perfil
+// ==========================================================
+// Eventos globales
+// ==========================================================
+function configurarEventosMenu() {
+  document.querySelectorAll(".menu a").forEach((enlace) => {
+    enlace.addEventListener("click", async (evento) => {
+      evento.preventDefault();
 
+      document.querySelectorAll(".menu a").forEach((item) => item.classList.remove("activo"));
+      enlace.classList.add("activo");
 
+      const vistaSeleccionada = enlace.dataset.vista;
 
-  // Eventos de los links del menú original
-  links.forEach((link) => {
-    link.addEventListener("click", (e) => {
-      e.preventDefault();
-      links.forEach((l) => l.classList.remove("activo"));
-      link.classList.add("activo");
-      const vistaSeleccionada = link.dataset.vista;
-      window.cargarVista(vistaSeleccionada);
+      if (vistaSeleccionada === "configuracion") {
+        cargarVistaConfig();
+        return;
+      }
+
+      await cargarVista(vistaSeleccionada || "dashboard");
     });
   });
-  window.cargarVista("dashboard");
 }
 
+function configurarEventosImagenPerfil() {
+  elementos.fotoDePerfil.addEventListener("click", () => {
+    elementos.imagenGrande.src = elementos.fotoDePerfil.src;
+    elementos.modalImagen.style.display = "flex";
+  });
 
-
-// Sobrescribir window.cargarVista para que el dashboard use la versión mejorada
-function patchCargarVista() {
-  const original = window.cargarVista;
-  window.cargarVista = function (nombre) {
-    if (nombre === "dashboard") {
-      
-      document.getElementById("vista").innerHTML =
-        cargarVistaDashboardMejorada();
-        
-    } else {
-      original(nombre);
+  elementos.modalImagen.addEventListener("click", (evento) => {
+    if (evento.target === elementos.modalImagen) {
+      elementos.modalImagen.style.display = "none";
     }
-    actualizarIconoDark();
-  };
+  });
+
+  elementos.btnEditarImagen.addEventListener("click", () => {
+    elementos.inputImagen.click();
+  });
+
+  elementos.inputImagen.addEventListener("change", async () => {
+    const archivo = elementos.inputImagen.files[0];
+    await subirImagen(archivo);
+    elementos.inputImagen.value = "";
+  });
 }
 
-// Iniciar
-init();
+async function iniciarDashboard() {
+  aplicarTema(obtenerTemaDesdeCookie());
+  inyectarSidebar();
+  inyectarModalLogout();
+  configurarEventosMenu();
+  configurarEventosImagenPerfil();
+
+  await verificarAdministrador();
+  await cargarVista("dashboard");
+}
+
+iniciarDashboard();
