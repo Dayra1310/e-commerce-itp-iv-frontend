@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="api-base-url" content="" />
+    <link rel="stylesheet" href="../../public/css/tema.css" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <title>Resultado del pago — E-Commerce ITP IV</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, sans-serif;
+        background: var(--bg-main, #f3f4f6);
+        margin: 0;
+        padding: 20px;
+      }
+
+      .contenedor-resultado {
+        background: var(--card-bg, #fafafa);
+        border: 1px solid var(--card-border, #e5e7eb);
+        border-radius: 20px;
+        padding: 56px 44px 44px;
+        text-align: center;
+        box-shadow: 0 8px 30px var(--card-shadow, rgba(0,0,0,0.05));
+        max-width: 480px;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
+        transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+      }
+
+      .contenedor-resultado::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+      }
+      .contenedor-resultado.aprobado::before { background: linear-gradient(90deg, #34d399, #3b82f6, #34d399); }
+      .contenedor-resultado.rechazado::before { background: linear-gradient(90deg, #ef4444, #f87171, #ef4444); }
+      .contenedor-resultado.pendiente::before  { background: linear-gradient(90deg, #facc15, #f59e0b, #facc15); }
+
+      .icono-resultado {
+        font-size: 72px;
+        display: block;
+        margin-bottom: 6px;
+        animation: pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .icono-resultado.aprobado  { color: #34d399; }
+      .icono-resultado.rechazado { color: #ef4444; }
+      .icono-resultado.pendiente { color: #facc15; }
+
+      @keyframes pop {
+        0% { transform: scale(0); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      .contenedor-resultado h1 {
+        font-size: 26px;
+        font-weight: 700;
+        margin: 0 0 6px;
+        color: var(--text-primary, #2f343d);
+        letter-spacing: -0.3px;
+      }
+
+      .contenedor-resultado > p {
+        color: var(--text-secondary, #6b7280);
+        margin: 0 0 6px;
+        line-height: 1.6;
+        font-size: 14px;
+      }
+
+      .pedido-id {
+        display: inline-block;
+        margin: 12px 0 20px;
+        padding: 6px 18px;
+        background: var(--badge-bg, #eceff3);
+        color: var(--badge-color, #4b5563);
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      .info-entrega {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        color: var(--text-secondary, #6b7280);
+        font-size: 13px;
+        margin-bottom: 28px;
+        line-height: 1.5;
+      }
+      .info-entrega i {
+        font-size: 16px;
+      }
+      .info-entrega.aprobado i  { color: #3b82f6; }
+      .info-entrega.rechazado i { color: #ef4444; }
+      .info-entrega.pendiente i { color: #f59e0b; }
+
+      .acciones {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn-primario {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 13px 28px;
+        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        color: white;
+        border: none;
+        border-radius: 11px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: opacity 0.2s, transform 0.15s;
+        box-shadow: 0 4px 14px rgba(59,130,246,0.35);
+      }
+      .btn-primario:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+      }
+      .btn-primario.reintentar {
+        background: linear-gradient(135deg, #dc2626, #ef4444);
+        box-shadow: 0 4px 14px rgba(239,68,68,0.35);
+      }
+
+      .btn-secundario {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 20px;
+        background: transparent;
+        color: var(--text-secondary, #6b7280);
+        border: 1.5px solid var(--card-border, #e5e7eb);
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        text-decoration: none;
+        transition: background 0.2s, color 0.2s;
+        width: 100%;
+      }
+      .btn-secundario:hover {
+        background: var(--badge-bg, #eceff3);
+        color: var(--text-primary, #2f343d);
+      }
+
+      .oculto { display: none !important; }
+
+      /* ── Dark mode ── */
+      body.dark .contenedor-resultado {
+        background: var(--dark-card-bg, #1e293b);
+        border-color: var(--dark-card-border, #334155);
+        box-shadow: 0 8px 30px var(--dark-card-shadow, rgba(0,0,0,0.3));
+      }
+      body.dark .contenedor-resultado h1 { color: var(--dark-stat-val, #f1f5f9); }
+      body.dark .contenedor-resultado > p { color: var(--dark-stat-label, #64748b); }
+      body.dark .pedido-id {
+        background: var(--dark-badge-bg, #1e3a5f);
+        color: var(--dark-badge-color, #60a5fa);
+      }
+      body.dark .info-entrega { color: var(--dark-stat-label, #64748b); }
+      body.dark .btn-secundario {
+        color: var(--dark-stat-label, #64748b);
+        border-color: var(--dark-card-border, #334155);
+      }
+      body.dark .btn-secundario:hover {
+        background: rgba(255,255,255,0.05);
+        color: var(--dark-stat-val, #f1f5f9);
+      }
+      .indicador-carga {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+        color: var(--text-secondary, #6b7280);
+        font-size: 14px;
+      }
+      .spinner {
+        width: 38px;
+        height: 38px;
+        border: 3px solid var(--card-border, #e5e7eb);
+        border-top-color: #3b82f6;
+        border-radius: 50%;
+        animation: spin 0.7s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+  </head>
+  <body>
+    <div class="contenedor-resultado" id="contenedorResultado">
+      <div class="indicador-carga" id="indicadorCarga">
+        <div class="spinner"></div>
+        <p>Consultando estado del pago...</p>
+      </div>
+
+      <i class="bx icono-resultado oculto" id="iconoResultado"></i>
+      <h1 class="oculto" id="tituloResultado"></h1>
+      <p class="oculto" id="textoResultado"></p>
+
+      <span class="pedido-id oculto" id="pedidoIdLabel">Pedido #—</span>
+
+      <div class="info-entrega oculto" id="infoEntrega">
+        <i class="bx"></i>
+        <span id="textoEntrega"></span>
+      </div>
+
+      <div class="acciones oculto" id="accionesResultado">
+        <a id="btnPrimario" class="btn-primario" href="dashboard.html">
+          <i class="bx bx-home"></i> Volver al inicio
+        </a>
+        <a id="btnSecundario" class="btn-secundario" href="carrito.html">
+          <i class="bx bx-cart"></i> Seguir comprando
+        </a>
+      </div>
+    </div>
+
+    <script src="../logica/configuracion-api.js"></script>
+    <script>
+      (function () {
+        var params = new URLSearchParams(window.location.search);
+        var pedidoId = params.get("extra1") || params.get("pedido_id");
+        if (!pedidoId) {
+          try { pedidoId = localStorage.getItem("ECOMMERCE_PEDIDO_ID"); localStorage.removeItem("ECOMMERCE_PEDIDO_ID"); } catch (e) { /* ignore */ }
+        }
+
+        function mostrarEstado(estado) {
+          document.getElementById("indicadorCarga").classList.add("oculto");
+
+          var mostrar = ["iconoResultado", "tituloResultado", "textoResultado",
+            "pedidoIdLabel", "infoEntrega", "accionesResultado"];
+          mostrar.forEach(function (id) { document.getElementById(id).classList.remove("oculto"); });
+
+          if (pedidoId) {
+            document.getElementById("pedidoIdLabel").textContent = "Pedido #" + pedidoId;
+          }
+
+          var contenedor = document.getElementById("contenedorResultado");
+          var icono = document.getElementById("iconoResultado");
+          var titulo = document.getElementById("tituloResultado");
+          var texto = document.getElementById("textoResultado");
+          var infoIcono = document.querySelector("#infoEntrega i");
+          var textoEntrega = document.getElementById("textoEntrega");
+          var btnPrimario = document.getElementById("btnPrimario");
+          var btnSecundario = document.getElementById("btnSecundario");
+
+          contenedor.className = "contenedor-resultado " + estado;
+          icono.className = "bx icono-resultado " + estado;
+
+          if (estado === "aprobado") {
+            icono.className += " bx-check-circle";
+            titulo.textContent = "¡Compra exitosa!";
+            texto.textContent = "Gracias por tu pedido. Tus tableros están siendo preparados.";
+            infoIcono.className = "bx bx-package";
+            infoIcono.style.color = "#3b82f6";
+            textoEntrega.textContent = "Recibirás un correo con los detalles y el seguimiento del envío.";
+            btnPrimario.innerHTML = '<i class="bx bx-home"></i> Volver al inicio';
+            btnPrimario.href = "dashboard.html";
+            btnPrimario.className = "btn-primario";
+            btnSecundario.classList.remove("oculto");
+          } else if (estado === "rechazado") {
+            icono.className += " bx-x-circle";
+            titulo.textContent = "Pago rechazado";
+            texto.textContent = "La transacción no pudo completarse. Verifica los datos e inténtalo de nuevo.";
+            infoIcono.className = "bx bx-error-circle";
+            infoIcono.style.color = "#ef4444";
+            textoEntrega.textContent = "Si el problema persiste, contacta con tu banco o usa otro medio de pago.";
+            btnPrimario.innerHTML = '<i class="bx bx-cart"></i> Ir al carrito';
+            btnPrimario.href = "carrito.html";
+            btnPrimario.className = "btn-primario reintentar";
+            btnSecundario.classList.add("oculto");
+          } else {
+            icono.className += " bx bx-time-five";
+            titulo.textContent = "Pago pendiente";
+            texto.textContent = "Tu pedido está siendo procesado. Esto puede tomar unos minutos.";
+            infoIcono.className = "bx bx-search";
+            infoIcono.style.color = "#f59e0b";
+            textoEntrega.textContent = "Te notificaremos por correo cuando se confirme el pago.";
+            btnPrimario.innerHTML = '<i class="bx bx-home"></i> Volver al inicio';
+            btnPrimario.href = "dashboard.html";
+            btnPrimario.className = "btn-primario";
+            btnSecundario.classList.remove("oculto");
+          }
+        }
+
+        if (pedidoId) {
+          clienteApi.solicitarJson("/pagos/" + pedidoId, { method: "GET" })
+            .then(function (datos) {
+              var estadoPago = (datos.pago && datos.pago.estado_pago) || "";
+              var estadoPedido = datos.estado || "";
+
+              if (estadoPago === "pagado" || estadoPedido === "pagado") {
+                mostrarEstado("aprobado");
+              } else if (estadoPago === "rechazado" || estadoPedido === "cancelado") {
+                mostrarEstado("rechazado");
+              } else {
+                mostrarEstado("pendiente");
+              }
+            })
+            .catch(function () {
+              var respuesta = params.get("response") || "";
+              if (respuesta === "Aceptada" || respuesta === "APPROVED") {
+                mostrarEstado("aprobado");
+              } else if (respuesta === "Rechazada" || respuesta === "REJECTED") {
+                mostrarEstado("rechazado");
+              } else {
+                mostrarEstado("pendiente");
+              }
+            });
+        } else {
+          mostrarEstado("pendiente");
+        }
+      })();
+    </script>
+  </body>
+</html>

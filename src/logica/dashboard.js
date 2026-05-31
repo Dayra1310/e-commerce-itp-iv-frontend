@@ -16,8 +16,18 @@ const TIPOS_IMAGEN_PERMITIDOS = ["image/jpeg", "image/png", "image/webp", "image
 const estadoDashboard = {
   usuarios: [],
   roles: [],
-  busquedaActividad: ""
+  busquedaActividad: "",
+  carritoCount: 0
 };
+
+const productosQuemados = [
+  { id: 1, nombre: "Auriculares Bluetooth", precio: 85000, stock: 15, imagen: "" },
+  { id: 2, nombre: "Teclado Mecánico RGB", precio: 120000, stock: 10, imagen: "" },
+  { id: 3, nombre: "Mouse Inalámbrico", precio: 45000, stock: 20, imagen: "" },
+  { id: 4, nombre: "Monitor 24\" Full HD", precio: 350000, stock: 8, imagen: "" },
+  { id: 5, nombre: "Webcam HD 1080p", precio: 65000, stock: 12, imagen: "" },
+  { id: 6, nombre: "Hub USB-C 7 puertos", precio: 55000, stock: 18, imagen: "" }
+];
 
 const elementos = {
   vista: document.getElementById("vista"),
@@ -186,14 +196,31 @@ async function obtenerRolesDisponibles() {
 const vistas = {
   productos: `
     <div class="usuarios-header">
-      <h2>Productos</h2>
+      <h2>Catálogo de Productos</h2>
+      <div class="acciones-catalogo">
+        <button id="btnAgregarTodos" class="btn-agregar-todos">
+          <i class='bx bx-cart-download'></i> Agregar todos al carrito
+        </button>
+      </div>
     </div>
-    <div class="card" style="margin-top:16px;">
-      <p>
-        El backend actual no expone un endpoint de productos. Para evitar datos falsos,
-        esta vista queda lista para conectarse cuando exista una ruta real como
-        <strong>GET /productos</strong>.
-      </p>
+    <div class="grid-productos" id="gridProductos">
+      ${productosQuemados.map((p) => {
+        const sinStock = (p.stock ?? 0) <= 0;
+        return `
+        <div class="card-producto${sinStock ? " sin-stock" : ""}" data-id="${p.id}">
+          <div class="producto-img-placeholder">
+            <i class='bx bxs-package'></i>
+          </div>
+          <div class="producto-body">
+            <h3 class="producto-nombre">${escaparHtml(p.nombre)}</h3>
+            <p class="producto-precio">${formatearMoneda(p.precio)}</p>
+            <p class="producto-stock${sinStock ? " stock-agotado" : ""}">${sinStock ? "Sin stock" : `Stock: ${p.stock} unidades`}</p>
+            <button class="btn-agregar-carrito" data-producto-id="${p.id}" ${sinStock ? "disabled" : ""}>
+              <i class='bx ${sinStock ? "bx-x-circle" : "bx-cart-add"}'></i> ${sinStock ? "Agotado" : "Agregar al carrito"}
+            </button>
+          </div>
+        </div>
+      `}).join("")}
     </div>
   `,
 
@@ -230,6 +257,29 @@ const vistas = {
       </thead>
       <tbody id="tabla-usuarios"></tbody>
     </table>
+  `,
+
+  historial: `
+    <div class="usuarios-header">
+      <h2>Historial de Pedidos</h2>
+    </div>
+    <div class="card" style="margin-top:16px; padding:0;">
+      <div class="tabla-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Pedido #</th>
+              <th>Usuario</th>
+              <th>Fecha</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tabla-pedidos"></tbody>
+        </table>
+      </div>
+    </div>
   `
 };
 
@@ -307,6 +357,12 @@ async function cargarVista(nombre) {
   if (nombre === "dashboard") {
     elementos.vista.innerHTML = construirVistaDashboard();
     await cargarDatosDashboard();
+    actualizarIconoDark();
+    return;
+  }
+
+  if (nombre === "carrito") {
+    window.location.href = "carrito.html";
     return;
   }
 
@@ -314,6 +370,14 @@ async function cargarVista(nombre) {
 
   if (nombre === "usuarios") {
     await cargarVistaUsuarios();
+  }
+
+  if (nombre === "productos") {
+    cargarVistaProductos();
+  }
+
+  if (nombre === "historial") {
+    cargarVistaHistorial();
   }
 
   actualizarIconoDark();
@@ -659,6 +723,275 @@ async function eliminarUsuario(id) {
 }
 
 // ==========================================================
+// Catálogo de productos y carrito
+// ==========================================================
+function obtenerProductoPorId(id) {
+  return productosQuemados.find((p) => p.id === id);
+}
+
+function cargarVistaProductos() {
+  document.querySelectorAll(".btn-agregar-carrito").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const productoId = Number(btn.dataset.productoId);
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Agregando...';
+
+      const exito = await agregarAlCarritoDashboard(productoId);
+
+      btn.disabled = false;
+      if (exito) {
+        btn.innerHTML = '<i class="bx bx-check"></i> Agregado';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="bx bx-cart-add"></i> Agregar al carrito';
+        }, 2000);
+      } else {
+        btn.innerHTML = '<i class="bx bx-cart-add"></i> Agregar al carrito';
+      }
+
+      await actualizarBadgeCarrito();
+    });
+  });
+
+  const btnAgregarTodos = document.getElementById("btnAgregarTodos");
+  if (btnAgregarTodos) {
+    btnAgregarTodos.addEventListener("click", async () => {
+      btnAgregarTodos.disabled = true;
+      btnAgregarTodos.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Agregando todos...';
+
+      let agregados = 0;
+      let errores = 0;
+      let sinStock = 0;
+
+      for (const producto of productosQuemados) {
+        if ((producto.stock ?? 0) <= 0) {
+          sinStock++;
+          continue;
+        }
+        const exito = await agregarAlCarritoDashboard(producto.id, 1, true);
+        if (exito) {
+          agregados++;
+        } else {
+          errores++;
+        }
+      }
+
+      btnAgregarTodos.disabled = false;
+      btnAgregarTodos.innerHTML = '<i class="bx bx-cart-download"></i> Agregar todos al carrito';
+
+      Swal.fire({
+        icon: errores === 0 ? "success" : "warning",
+        title: errores === 0 ? "Productos agregados" : "Agregados con errores",
+        text: `${agregados} producto(s) agregado(s) al carrito${errores ? `, ${errores} fallaron` : ""}${sinStock ? `, ${sinStock} sin stock` : ""}`,
+        timer: 2000,
+        showConfirmButton: false
+      });
+
+      actualizarBadgeCarrito();
+
+      document.querySelectorAll(".btn-agregar-carrito").forEach((btn) => {
+        btn.innerHTML = '<i class="bx bx-check"></i> Agregado';
+        setTimeout(() => {
+          btn.innerHTML = '<i class="bx bx-cart-add"></i> Agregar al carrito';
+        }, 1500);
+      });
+    });
+  }
+}
+
+async function agregarAlCarritoDashboard(productoId, cantidad = 1, silencioso = false) {
+  try {
+    await clienteApi.solicitarJson("/carrito/agregar", {
+      method: "POST",
+      body: JSON.stringify({ producto_id: productoId, cantidad })
+    });
+
+    if (!silencioso) {
+      Swal.fire({
+        icon: "success",
+        title: "Producto agregado",
+        text: "Se agregó al carrito correctamente",
+        timer: 1200,
+        showConfirmButton: false
+      });
+    }
+
+    return true;
+  } catch (error) {
+    console.error(error);
+    const mensaje = (error.datos?.message || error.message || "").toLowerCase();
+    const esStock = mensaje.includes("stock");
+
+    if (!silencioso) {
+      Swal.fire({
+        icon: esStock ? "warning" : "error",
+        title: esStock ? "Stock insuficiente" : (error.status === 401 ? "Sesión expirada" : "Error"),
+        text: error.datos?.message || error.message || "No se pudo agregar el producto"
+      });
+    }
+
+    return false;
+  }
+}
+
+async function obtenerCarritoCount() {
+  try {
+    const datos = await clienteApi.solicitarJson("/carrito", {
+      method: "GET"
+    });
+
+    estadoDashboard.carritoCount = datos.cantidad_items || 0;
+  } catch (error) {
+    if (error.status !== 401 && error.status !== 404) {
+      console.error("Error al obtener carrito:", error);
+    }
+    estadoDashboard.carritoCount = 0;
+  }
+
+  return estadoDashboard.carritoCount;
+}
+
+async function actualizarBadgeCarrito() {
+  const badge = document.getElementById("badgeCarrito");
+  if (!badge) return;
+
+  await obtenerCarritoCount();
+  badge.textContent = estadoDashboard.carritoCount;
+  badge.style.display = estadoDashboard.carritoCount > 0 ? "inline" : "none";
+}
+
+// ==========================================================
+// Historial de pedidos
+// ==========================================================
+async function cargarVistaHistorial() {
+  const tbody = document.getElementById("tabla-pedidos");
+  if (!tbody) return;
+
+  tbody.innerHTML = `
+    <tr>
+      <td colspan="6" style="text-align:center; padding:32px; color:#888;">
+        <i class='bx bx-loader-alt bx-spin' style="font-size:24px;"></i><br>
+        Cargando pedidos...
+      </td>
+    </tr>
+  `;
+
+  try {
+    const datos = await clienteApi.solicitarJson("/pedidos", {
+      method: "GET"
+    });
+
+    const pedidos = Array.isArray(datos.pedidos) ? datos.pedidos : [];
+
+    if (pedidos.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center; padding:32px; color:#888;">
+            No hay pedidos registrados
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = pedidos.map((pedido) => `
+      <tr>
+        <td>#${Number(pedido.id)}</td>
+        <td>${escaparHtml(pedido.usuario_nombre || pedido.usuario || "—")}</td>
+        <td>${pedido.fecha ? new Date(pedido.fecha).toLocaleDateString("es-CO") : "—"}</td>
+        <td>${formatearMoneda(pedido.total)}</td>
+        <td><span class="badge-estado ${pedido.estado || "pendiente"}">${escaparHtml(pedido.estado || "pendiente")}</span></td>
+        <td>
+          <button class="btn-ver-detalle" data-pedido-id="${Number(pedido.id)}" title="Ver detalle">
+            <i class='bx bx-show'></i> Detalle
+          </button>
+        </td>
+      </tr>
+    `).join("");
+
+    tbody.querySelectorAll(".btn-ver-detalle").forEach((btn) => {
+      btn.addEventListener("click", () => verDetallePedido(Number(btn.dataset.pedidoId)));
+    });
+  } catch (error) {
+    console.error(error);
+
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="6" style="text-align:center; padding:32px; color:#f87171;">
+          <i class='bx bx-error-circle' style="font-size:24px;"></i><br>
+          ${escaparHtml(error.message || "Error al cargar pedidos")}
+        </td>
+      </tr>
+    `;
+  }
+}
+
+async function verDetallePedido(pedidoId) {
+  try {
+    const datos = await clienteApi.solicitarJson(`/pedidos/${pedidoId}`, {
+      method: "GET"
+    });
+
+    const pedido = datos.pedido || datos;
+    const items = Array.isArray(pedido.items) ? pedido.items : [];
+
+    Swal.fire({
+      title: `Pedido #${pedidoId}`,
+      width: 600,
+      html: `
+        <div style="text-align:left;">
+          <p><strong>Usuario:</strong> ${escaparHtml(pedido.usuario_nombre || pedido.usuario || "—")}</p>
+          <p><strong>Fecha:</strong> ${pedido.fecha ? new Date(pedido.fecha).toLocaleDateString("es-CO") : "—"}</p>
+          <p><strong>Estado:</strong> ${escaparHtml(pedido.estado || "pendiente")}</p>
+          <hr style="border-color:rgba(255,255,255,0.1); margin:12px 0;">
+          <table style="width:100%; border-collapse:collapse; font-size:14px;">
+            <thead>
+              <tr style="border-bottom:1px solid rgba(255,255,255,0.1);">
+                <th style="padding:6px 8px; text-align:left;">Producto</th>
+                <th style="padding:6px 8px; text-align:center;">Cant</th>
+                <th style="padding:6px 8px; text-align:right;">Precio</th>
+                <th style="padding:6px 8px; text-align:right;">Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items.map((item) => {
+                const precio = Number(item.precio_unitario || item.precio || 0);
+                return `
+                  <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <td style="padding:6px 8px;">${escaparHtml(item.nombre || "—")}</td>
+                    <td style="padding:6px 8px; text-align:center;">${Number(item.cantidad)}</td>
+                    <td style="padding:6px 8px; text-align:right;">${formatearMoneda(precio)}</td>
+                    <td style="padding:6px 8px; text-align:right;">${formatearMoneda(precio * Number(item.cantidad))}</td>
+                  </tr>
+                `;
+              }).join("")}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="3" style="padding:8px; text-align:right; font-weight:700;">Total</td>
+                <td style="padding:8px; text-align:right; font-weight:700;">${formatearMoneda(pedido.total)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      `,
+      confirmButtonText: "Cerrar",
+      customClass: {
+        popup: "modal-detalle-pedido"
+      }
+    });
+  } catch (error) {
+    console.error(error);
+
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: error.message || "No se pudo cargar el detalle del pedido"
+    });
+  }
+}
+
+// ==========================================================
 // Imagen de perfil
 // ==========================================================
 function validarImagen(archivo) {
@@ -918,6 +1251,7 @@ async function iniciarDashboard() {
   configurarEventosImagenPerfil();
 
   await verificarAdministrador();
+  await actualizarBadgeCarrito();
   await cargarVista("dashboard");
 }
 
