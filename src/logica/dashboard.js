@@ -17,7 +17,13 @@ const estadoDashboard = {
   usuarios: [],
   roles: [],
   busquedaActividad: "",
-  carritoCount: 0
+  carritoCount: 0,
+  soporte: {
+    tickets: [],
+    ticketSeleccionado: null,
+    busqueda: "",
+    estado: "todos"
+  }
 };
 
 const productosQuemados = [
@@ -280,6 +286,69 @@ const vistas = {
         </table>
       </div>
     </div>
+  `,
+
+  soporte: `
+    <div class="soporte-header">
+      <div>
+        <h2>Centro de soporte</h2>
+        <p>Administra solicitudes, respuestas y estados conectados al backend.</p>
+      </div>
+      <button type="button" id="btn-nuevo-ticket" class="btn-soporte-primario">
+        <i class='bx bx-plus-circle'></i>
+        <span>Nuevo ticket</span>
+      </button>
+    </div>
+
+    <section class="soporte-resumen">
+      <article class="soporte-stat">
+        <span>Total</span>
+        <strong id="soporte-total">0</strong>
+      </article>
+      <article class="soporte-stat">
+        <span>Abiertos</span>
+        <strong id="soporte-abiertos">0</strong>
+      </article>
+      <article class="soporte-stat">
+        <span>En proceso</span>
+        <strong id="soporte-proceso">0</strong>
+      </article>
+      <article class="soporte-stat">
+        <span>Cerrados</span>
+        <strong id="soporte-cerrados">0</strong>
+      </article>
+    </section>
+
+    <section class="soporte-layout">
+      <div class="soporte-panel soporte-lista-panel">
+        <div class="soporte-toolbar">
+          <div class="soporte-buscador">
+            <i class='bx bx-search'></i>
+            <input type="text" id="buscar-ticket" placeholder="Buscar por asunto, usuario o categoria">
+          </div>
+          <select id="filtro-ticket-estado">
+            <option value="todos">Todos</option>
+            <option value="abierto">Abiertos</option>
+            <option value="en_proceso">En proceso</option>
+            <option value="cerrado">Cerrados</option>
+          </select>
+        </div>
+        <div id="lista-tickets" class="lista-tickets">
+          <div class="soporte-loading">
+            <i class='bx bx-loader-alt bx-spin'></i>
+            <span>Cargando tickets...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="soporte-panel soporte-detalle-panel" id="detalle-ticket">
+        <div class="soporte-empty">
+          <i class='bx bx-message-square-dots'></i>
+          <h3>Selecciona un ticket</h3>
+          <p>El detalle y la conversacion apareceran aqui.</p>
+        </div>
+      </div>
+    </section>
   `
 };
 
@@ -378,6 +447,10 @@ async function cargarVista(nombre) {
 
   if (nombre === "historial") {
     cargarVistaHistorial();
+  }
+
+  if (nombre === "soporte") {
+    await cargarVistaSoporte();
   }
 
   actualizarIconoDark();
@@ -988,6 +1061,448 @@ async function verDetallePedido(pedidoId) {
       title: "Error",
       text: error.message || "No se pudo cargar el detalle del pedido"
     });
+  }
+}
+
+// ==========================================================
+// Centro de soporte
+// ==========================================================
+function obtenerListaDesdeRespuesta(datos, claves) {
+  if (Array.isArray(datos)) return datos;
+
+  for (const clave of claves) {
+    if (Array.isArray(datos?.[clave])) return datos[clave];
+  }
+
+  return [];
+}
+
+async function solicitarSoporte(rutas, opciones = {}) {
+  let ultimoError = null;
+
+  for (const ruta of rutas) {
+    try {
+      return await clienteApi.solicitarJson(ruta, opciones);
+    } catch (error) {
+      ultimoError = error;
+      if (![404, 405].includes(error.status)) break;
+    }
+  }
+
+  throw ultimoError;
+}
+
+function normalizarEstadoTicket(valor) {
+  const estado = String(valor || "abierto").toLowerCase().replaceAll(" ", "_");
+
+  if (["en_progreso", "proceso", "pendiente", "asignado"].includes(estado)) {
+    return "en_proceso";
+  }
+
+  if (["resuelto", "finalizado"].includes(estado)) {
+    return "cerrado";
+  }
+
+  return ["abierto", "en_proceso", "cerrado"].includes(estado) ? estado : "abierto";
+}
+
+function normalizarTicket(ticket) {
+  ticket = ticket || {};
+
+  return {
+    id: Number(ticket.id || ticket.ticket_id || ticket.id_soporte || 0),
+    asunto: ticket.asunto || ticket.titulo || ticket.subject || "Solicitud sin asunto",
+    descripcion: ticket.descripcion || ticket.mensaje || ticket.description || "",
+    categoria: ticket.categoria || ticket.tipo || ticket.category || "General",
+    prioridad: String(ticket.prioridad || ticket.priority || "media").toLowerCase(),
+    estado: normalizarEstadoTicket(ticket.estado || ticket.status),
+    usuario: ticket.usuario_nombre || ticket.usuario || ticket.nombre_usuario || ticket.cliente || "Usuario",
+    email: ticket.email || ticket.correo || ticket.usuario_email || "",
+    fecha: ticket.created_at || ticket.fecha_creacion || ticket.fecha || ticket.createdAt || "",
+    actualizado: ticket.updated_at || ticket.fecha_actualizacion || ticket.updatedAt || "",
+    mensajes: obtenerListaDesdeRespuesta(ticket, ["mensajes", "respuestas", "messages", "comentarios"])
+  };
+}
+
+function formatearFechaSoporte(valor) {
+  if (!valor) return "Sin fecha";
+  const fecha = new Date(valor);
+  if (Number.isNaN(fecha.getTime())) return String(valor);
+
+  return fecha.toLocaleString("es-CO", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
+}
+
+function obtenerClasePrioridad(prioridad) {
+  const valor = String(prioridad || "media").toLowerCase();
+  if (["alta", "urgente", "critica"].includes(valor)) return "alta";
+  if (["baja"].includes(valor)) return "baja";
+  return "media";
+}
+
+async function obtenerTicketsSoporte() {
+  const datos = await solicitarSoporte([
+    "/soporte/tickets",
+    "/soporte",
+    "/tickets/soporte",
+    "/tickets"
+  ], {
+    method: "GET"
+  });
+
+  const tickets = obtenerListaDesdeRespuesta(datos, ["tickets", "soportes", "solicitudes", "data"]);
+  estadoDashboard.soporte.tickets = tickets.map(normalizarTicket);
+  return estadoDashboard.soporte.tickets;
+}
+
+async function obtenerDetalleTicket(ticketId) {
+  const datos = await solicitarSoporte([
+    `/soporte/tickets/${ticketId}`,
+    `/soporte/${ticketId}`,
+    `/tickets/soporte/${ticketId}`,
+    `/tickets/${ticketId}`
+  ], {
+    method: "GET"
+  });
+
+  return normalizarTicket(datos.ticket || datos.soporte || datos.solicitud || datos.data || datos);
+}
+
+async function crearTicketSoporte(ticket) {
+  return solicitarSoporte([
+    "/soporte/tickets",
+    "/soporte",
+    "/tickets/soporte",
+    "/tickets"
+  ], {
+    method: "POST",
+    body: JSON.stringify(ticket)
+  });
+}
+
+async function enviarMensajeSoporte(ticketId, mensaje) {
+  return solicitarSoporte([
+    `/soporte/tickets/${ticketId}/mensajes`,
+    `/soporte/${ticketId}/mensajes`,
+    `/tickets/soporte/${ticketId}/mensajes`,
+    `/tickets/${ticketId}/mensajes`
+  ], {
+    method: "POST",
+    body: JSON.stringify({ mensaje, respuesta: mensaje, contenido: mensaje })
+  });
+}
+
+async function actualizarEstadoSoporte(ticketId, estado) {
+  return solicitarSoporte([
+    `/soporte/tickets/${ticketId}/estado`,
+    `/soporte/${ticketId}/estado`,
+    `/tickets/soporte/${ticketId}/estado`,
+    `/tickets/${ticketId}/estado`,
+    `/soporte/tickets/${ticketId}`,
+    `/soporte/${ticketId}`
+  ], {
+    method: "PUT",
+    body: JSON.stringify({ estado, status: estado })
+  });
+}
+
+async function cargarVistaSoporte() {
+  document.getElementById("btn-nuevo-ticket")?.addEventListener("click", abrirModalNuevoTicket);
+
+  const inputBusqueda = document.getElementById("buscar-ticket");
+  if (inputBusqueda) {
+    inputBusqueda.value = estadoDashboard.soporte.busqueda;
+    inputBusqueda.addEventListener("input", () => {
+      estadoDashboard.soporte.busqueda = inputBusqueda.value.trim().toLowerCase();
+      renderizarTicketsSoporte();
+    });
+  }
+
+  const filtroEstado = document.getElementById("filtro-ticket-estado");
+  if (filtroEstado) {
+    filtroEstado.value = estadoDashboard.soporte.estado;
+    filtroEstado.addEventListener("change", () => {
+      estadoDashboard.soporte.estado = filtroEstado.value;
+      renderizarTicketsSoporte();
+    });
+  }
+
+  await recargarTicketsSoporte();
+}
+
+async function recargarTicketsSoporte() {
+  const lista = document.getElementById("lista-tickets");
+  if (lista) {
+    lista.innerHTML = `
+      <div class="soporte-loading">
+        <i class='bx bx-loader-alt bx-spin'></i>
+        <span>Cargando tickets...</span>
+      </div>
+    `;
+  }
+
+  try {
+    await obtenerTicketsSoporte();
+    renderizarResumenSoporte();
+    renderizarTicketsSoporte();
+  } catch (error) {
+    console.error(error);
+    if (lista) {
+      lista.innerHTML = `
+        <div class="soporte-empty soporte-error">
+          <i class='bx bx-plug'></i>
+          <h3>No se pudo conectar soporte</h3>
+          <p>${escaparHtml(error.message || "Revisa que el backend tenga activo el modulo de soporte.")}</p>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderizarResumenSoporte() {
+  const tickets = estadoDashboard.soporte.tickets;
+  const abiertos = tickets.filter((ticket) => ticket.estado === "abierto").length;
+  const proceso = tickets.filter((ticket) => ticket.estado === "en_proceso").length;
+  const cerrados = tickets.filter((ticket) => ticket.estado === "cerrado").length;
+
+  document.getElementById("soporte-total").textContent = tickets.length;
+  document.getElementById("soporte-abiertos").textContent = abiertos;
+  document.getElementById("soporte-proceso").textContent = proceso;
+  document.getElementById("soporte-cerrados").textContent = cerrados;
+}
+
+function obtenerTicketsFiltrados() {
+  const { tickets, busqueda, estado } = estadoDashboard.soporte;
+
+  return tickets.filter((ticket) => {
+    const coincideEstado = estado === "todos" || ticket.estado === estado;
+    const texto = `${ticket.asunto} ${ticket.descripcion} ${ticket.categoria} ${ticket.usuario} ${ticket.email}`.toLowerCase();
+    return coincideEstado && texto.includes(busqueda);
+  });
+}
+
+function renderizarTicketsSoporte() {
+  const lista = document.getElementById("lista-tickets");
+  if (!lista) return;
+
+  const tickets = obtenerTicketsFiltrados();
+
+  if (tickets.length === 0) {
+    lista.innerHTML = `
+      <div class="soporte-empty">
+        <i class='bx bx-inbox'></i>
+        <h3>Sin tickets</h3>
+        <p>No hay solicitudes con los filtros actuales.</p>
+      </div>
+    `;
+    return;
+  }
+
+  lista.innerHTML = tickets.map((ticket) => `
+    <button type="button" class="ticket-item${estadoDashboard.soporte.ticketSeleccionado?.id === ticket.id ? " activo" : ""}" data-ticket-id="${ticket.id}">
+      <div class="ticket-item-top">
+        <strong>#${ticket.id || "-"} ${escaparHtml(ticket.asunto)}</strong>
+        <span class="ticket-estado ${ticket.estado}">${ticket.estado.replaceAll("_", " ")}</span>
+      </div>
+      <p>${escaparHtml(ticket.descripcion || "Sin descripcion").slice(0, 110)}</p>
+      <div class="ticket-meta">
+        <span><i class='bx bx-user'></i>${escaparHtml(ticket.usuario)}</span>
+        <span class="ticket-prioridad ${obtenerClasePrioridad(ticket.prioridad)}">${escaparHtml(ticket.prioridad)}</span>
+      </div>
+    </button>
+  `).join("");
+
+  lista.querySelectorAll(".ticket-item").forEach((boton) => {
+    boton.addEventListener("click", () => seleccionarTicketSoporte(Number(boton.dataset.ticketId)));
+  });
+}
+
+async function seleccionarTicketSoporte(ticketId) {
+  const detalle = document.getElementById("detalle-ticket");
+  if (!detalle) return;
+
+  detalle.innerHTML = `
+    <div class="soporte-loading">
+      <i class='bx bx-loader-alt bx-spin'></i>
+      <span>Cargando detalle...</span>
+    </div>
+  `;
+
+  try {
+    const ticket = await obtenerDetalleTicket(ticketId);
+    estadoDashboard.soporte.ticketSeleccionado = ticket;
+    renderizarTicketsSoporte();
+    renderizarDetalleTicket(ticket);
+  } catch (error) {
+    mostrarErrorServidor(error, "No se pudo cargar el ticket");
+  }
+}
+
+function normalizarMensajeSoporte(mensaje) {
+  return {
+    autor: mensaje.autor || mensaje.usuario || mensaje.nombre || mensaje.rol || "Soporte",
+    contenido: mensaje.mensaje || mensaje.respuesta || mensaje.contenido || mensaje.texto || "",
+    fecha: mensaje.created_at || mensaje.fecha || mensaje.createdAt || ""
+  };
+}
+
+function renderizarDetalleTicket(ticket) {
+  const detalle = document.getElementById("detalle-ticket");
+  if (!detalle) return;
+
+  const mensajes = ticket.mensajes.map(normalizarMensajeSoporte);
+
+  detalle.innerHTML = `
+    <div class="ticket-detalle-header">
+      <div>
+        <span class="ticket-estado ${ticket.estado}">${ticket.estado.replaceAll("_", " ")}</span>
+        <h3>#${ticket.id || "-"} ${escaparHtml(ticket.asunto)}</h3>
+        <p>${escaparHtml(ticket.categoria)} - ${escaparHtml(ticket.usuario)} ${ticket.email ? `(${escaparHtml(ticket.email)})` : ""}</p>
+      </div>
+      <select id="select-estado-ticket" class="select-estado-ticket">
+        <option value="abierto" ${ticket.estado === "abierto" ? "selected" : ""}>Abierto</option>
+        <option value="en_proceso" ${ticket.estado === "en_proceso" ? "selected" : ""}>En proceso</option>
+        <option value="cerrado" ${ticket.estado === "cerrado" ? "selected" : ""}>Cerrado</option>
+      </select>
+    </div>
+
+    <div class="ticket-descripcion">
+      <span>Descripcion</span>
+      <p>${escaparHtml(ticket.descripcion || "Sin descripcion registrada.")}</p>
+      <small>Creado: ${escaparHtml(formatearFechaSoporte(ticket.fecha))}</small>
+    </div>
+
+    <div class="ticket-conversacion">
+      ${mensajes.length === 0 ? `
+        <div class="soporte-empty conversacion-vacia">
+          <i class='bx bx-chat'></i>
+          <p>Aun no hay mensajes en este ticket.</p>
+        </div>
+      ` : mensajes.map((mensaje) => `
+        <article class="mensaje-soporte">
+          <div>
+            <strong>${escaparHtml(mensaje.autor)}</strong>
+            <small>${escaparHtml(formatearFechaSoporte(mensaje.fecha))}</small>
+          </div>
+          <p>${escaparHtml(mensaje.contenido)}</p>
+        </article>
+      `).join("")}
+    </div>
+
+    <form id="form-responder-ticket" class="form-responder-ticket">
+      <textarea id="respuesta-ticket" rows="4" placeholder="Escribe una respuesta clara para el cliente..."></textarea>
+      <button type="submit" class="btn-soporte-primario">
+        <i class='bx bx-send'></i>
+        <span>Responder</span>
+      </button>
+    </form>
+  `;
+
+  document.getElementById("select-estado-ticket").addEventListener("change", async (evento) => {
+    await cambiarEstadoTicket(ticket.id, evento.target.value);
+  });
+
+  document.getElementById("form-responder-ticket").addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    await responderTicket(ticket.id);
+  });
+}
+
+async function abrirModalNuevoTicket() {
+  const resultado = await Swal.fire({
+    title: "Nuevo ticket de soporte",
+    customClass: {
+      popup: "modal-usuario"
+    },
+    html: `
+      <div class="formulario-usuario-swal">
+        <input id="ticket-asunto" class="swal2-input" placeholder="Asunto">
+        <select id="ticket-categoria" class="swal2-input">
+          <option value="General">General</option>
+          <option value="Pedido">Pedido</option>
+          <option value="Pago">Pago</option>
+          <option value="Cuenta">Cuenta</option>
+          <option value="Producto">Producto</option>
+        </select>
+        <select id="ticket-prioridad" class="swal2-input">
+          <option value="media">Prioridad media</option>
+          <option value="alta">Prioridad alta</option>
+          <option value="baja">Prioridad baja</option>
+        </select>
+        <textarea id="ticket-descripcion" class="swal2-textarea" placeholder="Describe el caso"></textarea>
+      </div>
+    `,
+    confirmButtonText: "Crear ticket",
+    cancelButtonText: "Cancelar",
+    showCancelButton: true,
+    focusConfirm: false,
+    preConfirm: async () => {
+      const asunto = document.getElementById("ticket-asunto").value.trim();
+      const categoria = document.getElementById("ticket-categoria").value;
+      const prioridad = document.getElementById("ticket-prioridad").value;
+      const descripcion = document.getElementById("ticket-descripcion").value.trim();
+
+      if (!asunto || !descripcion) {
+        Swal.showValidationMessage("Completa el asunto y la descripcion");
+        return false;
+      }
+
+      try {
+        await crearTicketSoporte({ asunto, titulo: asunto, categoria, prioridad, descripcion, mensaje: descripcion });
+        return true;
+      } catch (error) {
+        Swal.showValidationMessage(error.message || "No se pudo crear el ticket");
+        return false;
+      }
+    }
+  });
+
+  if (!resultado.isConfirmed) return;
+
+  await Swal.fire({
+    icon: "success",
+    title: "Ticket creado",
+    timer: 1400,
+    showConfirmButton: false
+  });
+
+  await recargarTicketsSoporte();
+}
+
+async function responderTicket(ticketId) {
+  const textarea = document.getElementById("respuesta-ticket");
+  const mensaje = textarea.value.trim();
+
+  if (!mensaje) {
+    Swal.fire({
+      icon: "warning",
+      title: "Respuesta vacia",
+      text: "Escribe un mensaje antes de responder."
+    });
+    return;
+  }
+
+  try {
+    await enviarMensajeSoporte(ticketId, mensaje);
+    textarea.value = "";
+    await seleccionarTicketSoporte(ticketId);
+  } catch (error) {
+    mostrarErrorServidor(error, "No se pudo enviar la respuesta");
+  }
+}
+
+async function cambiarEstadoTicket(ticketId, estado) {
+  try {
+    await actualizarEstadoSoporte(ticketId, estado);
+    await recargarTicketsSoporte();
+    await seleccionarTicketSoporte(ticketId);
+  } catch (error) {
+    mostrarErrorServidor(error, "No se pudo actualizar el estado");
   }
 }
 
