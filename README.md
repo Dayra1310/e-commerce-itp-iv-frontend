@@ -3,6 +3,10 @@
 Aplicación web de e-commerce para gestión de productos y ventas. 
 
 dashboard
+--------------------------
+ANTES QUE NADA
+Leer el README.md
+y tener datos quemados en su db
 
 ------------------------------------------------------------------------
 
