@@ -21,8 +21,9 @@ const estadoDashboard = {
   busquedaActividad: "",
   graficoTopVendidos: null,
   graficoCategorias: null,
-  graficoProdTopVendidos: null,
-  graficoProdCategorias: null
+  graficoProdCategorias: null,
+  reporteActivo: "ventas",
+  datosReporte: []
 };
 
 const elementos = {
@@ -191,18 +192,7 @@ async function obtenerRolesDisponibles() {
 // ==========================================================
 const vistas = {
   productos: null,
-
-  reportes: `
-    <div class="usuarios-header">
-      <h2>Reportes</h2>
-    </div>
-    <div class="card" style="margin-top:16px;">
-      <p>
-        El backend actual no expone endpoints de ventas, pedidos o reportes. El dashboard
-        ya no muestra números quemados; solo presenta información que viene del backend real.
-      </p>
-    </div>
-  `,
+  reportes: null,
 
   usuarios: `
     <div class="usuarios-header">
@@ -318,10 +308,6 @@ function destruirGraficosDashboard() {
     estadoDashboard.graficoCategorias.destroy();
     estadoDashboard.graficoCategorias = null;
   }
-  if (estadoDashboard.graficoProdTopVendidos) {
-    estadoDashboard.graficoProdTopVendidos.destroy();
-    estadoDashboard.graficoProdTopVendidos = null;
-  }
   if (estadoDashboard.graficoProdCategorias) {
     estadoDashboard.graficoProdCategorias.destroy();
     estadoDashboard.graficoProdCategorias = null;
@@ -344,6 +330,11 @@ async function cargarVista(nombre) {
 
   if (nombre === "productos") {
     await cargarVistaProductos();
+    return;
+  }
+
+  if (nombre === "reportes") {
+    await cargarVistaReportes();
     return;
   }
 
@@ -492,20 +483,6 @@ function construirVistaProductos() {
         <span class="stat-badge neg">/productos/metricas</span>
       </div>
 
-      <div class="card prod-chart-top">
-        <div class="metric-title">Top 10 productos vendidos</div>
-        <div class="chart-container">
-          <canvas id="prod-grafico-top-vendidos"></canvas>
-        </div>
-      </div>
-
-      <div class="card prod-chart-cat">
-        <div class="metric-title">Productos por categoría</div>
-        <div class="chart-container">
-          <canvas id="prod-grafico-categorias"></canvas>
-        </div>
-      </div>
-
       <div class="card prod-tabla-bajo">
         <div class="activity-header">
           <div class="metric-title">Productos con bajo stock</div>
@@ -526,6 +503,13 @@ function construirVistaProductos() {
         </div>
       </div>
 
+      <div class="card prod-chart-cat">
+        <div class="metric-title">Productos por categoría</div>
+        <div class="chart-container">
+          <canvas id="prod-grafico-categorias"></canvas>
+        </div>
+      </div>
+
     </div>
   `;
 }
@@ -536,7 +520,6 @@ async function cargarVistaProductos() {
   try {
     const resultados = await Promise.allSettled([
       clienteApi.solicitarJson("/productos/metricas", { method: "GET" }),
-      clienteApi.solicitarJson("/productos/top-vendidos", { method: "GET" }),
       clienteApi.solicitarJson("/productos/categorias", { method: "GET" }),
       clienteApi.solicitarJson("/productos/bajo-stock", { method: "GET" })
     ]);
@@ -561,25 +544,18 @@ async function cargarVistaProductos() {
       console.error("Error métricas:", resultados[0].reason);
     }
 
-    // ── Top vendidos ──
-    if (resultados[1].status === "fulfilled") {
-      crearGraficoProdTopVendidos(resultados[1].value);
-    } else {
-      console.error("Error top vendidos:", resultados[1].reason);
-    }
-
     // ── Categorías ──
-    if (resultados[2].status === "fulfilled") {
-      crearGraficoProdCategorias(resultados[2].value);
+    if (resultados[1].status === "fulfilled") {
+      crearGraficoProdCategorias(resultados[1].value);
     } else {
-      console.error("Error categorías:", resultados[2].reason);
+      console.error("Error categorías:", resultados[1].reason);
     }
 
     // ── Tabla bajo stock ──
-    if (resultados[3].status === "fulfilled") {
-      renderizarTablaBajoStock(resultados[3].value);
+    if (resultados[2].status === "fulfilled") {
+      renderizarTablaBajoStock(resultados[2].value);
     } else {
-      console.error("Error bajo stock:", resultados[3].reason);
+      console.error("Error bajo stock:", resultados[2].reason);
     }
 
   } catch (error) {
@@ -618,78 +594,6 @@ function renderizarTablaBajoStock(productos) {
       `;
     })
     .join("");
-}
-
-function crearGraficoProdTopVendidos(productos) {
-  const canvas = document.getElementById("prod-grafico-top-vendidos");
-  if (!canvas) return;
-
-  if (estadoDashboard.graficoProdTopVendidos) {
-    estadoDashboard.graficoProdTopVendidos.destroy();
-    estadoDashboard.graficoProdTopVendidos = null;
-  }
-
-  const esDark = document.body.classList.contains("dark");
-  const colorTexto = esDark ? "#e2e8f0" : "#374151";
-  const colorGrid = esDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
-
-  const etiquetas = productos.map((p) => {
-    const nombre = p.nombre || "";
-    return nombre.length > 22 ? nombre.slice(0, 22) + "…" : nombre;
-  });
-
-  estadoDashboard.graficoProdTopVendidos = new Chart(canvas, {
-    type: "bar",
-    data: {
-      labels: etiquetas,
-      datasets: [{
-        label: "Vendidos",
-        data: productos.map((p) => p.vendidos),
-        backgroundColor: "rgba(124, 58, 237, 0.72)",
-        borderColor: "rgba(124, 58, 237, 1)",
-        borderWidth: 1,
-        borderRadius: 6,
-        maxBarThickness: 38
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      indexAxis: "y",
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: esDark ? "#1e293b" : "#ffffff",
-          titleColor: esDark ? "#f1f5f9" : "#111827",
-          bodyColor: esDark ? "#cbd5e1" : "#374151",
-          borderColor: esDark ? "#334155" : "#e5e7eb",
-          borderWidth: 1,
-          padding: 10,
-          cornerRadius: 8,
-          callbacks: {
-            title: function (items) {
-              const idx = items[0].dataIndex;
-              return productos[idx].nombre;
-            },
-            label: function (item) {
-              return `  Vendidos: ${item.raw}`;
-            }
-          }
-        }
-      },
-      scales: {
-        x: {
-          ticks: { color: colorTexto, font: { size: 11 } },
-          grid: { color: colorGrid },
-          beginAtZero: true
-        },
-        y: {
-          ticks: { color: colorTexto, font: { size: 11 } },
-          grid: { display: false }
-        }
-      }
-    }
-  });
 }
 
 function crearGraficoProdCategorias(categorias) {
@@ -896,6 +800,300 @@ function crearGraficoCategorias(categorias) {
         }
       }
     }
+  });
+}
+
+// ==========================================================
+// Vista Reportes
+// ==========================================================
+const CONFIG_REPORTE = {
+  ventas: {
+    endpoint: "/reportes/ventas",
+    titulo: "Reporte de Ventas",
+    columnas: ["Fecha", "Producto", "Cantidad", "Precio Unitario", "Total"],
+    keys: ["fecha", "producto", "cantidad", "precio_unitario", "total"],
+    requiereFechas: true
+  },
+  pedidos: {
+    endpoint: "/reportes/pedidos",
+    titulo: "Reporte de Pedidos",
+    columnas: ["Fecha", "Cliente", "Estado", "Total"],
+    keys: ["fecha", "cliente", "estado", "total"],
+    requiereFechas: true
+  },
+  inventario: {
+    endpoint: "/reportes/inventario",
+    titulo: "Reporte de Inventario",
+    columnas: ["Producto", "Categoría", "Stock", "Precio"],
+    keys: ["producto", "categoria", "stock", "precio"],
+    requiereFechas: false
+  }
+};
+
+function construirVistaReportes() {
+  const hoy = new Date().toISOString().split("T")[0];
+  const haceUnMes = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+  return `
+    <div class="dash-header">
+      <div>
+        <h1>Reportes</h1>
+        <span class="dash-fecha">${formatearFechaActual()}</span>
+      </div>
+    </div>
+
+    <div class="reporte-contenedor">
+
+      <div class="card reporte-panel">
+        <div class="reporte-tabs">
+          <button class="reporte-tab activo" data-tipo="ventas">
+            <i class='bx bx-dollar-circle'></i> Ventas
+          </button>
+          <button class="reporte-tab" data-tipo="pedidos">
+            <i class='bx bx-cart'></i> Pedidos
+          </button>
+          <button class="reporte-tab" data-tipo="inventario">
+            <i class='bx bx-box'></i> Inventario
+          </button>
+        </div>
+
+        <div class="reporte-filtros" id="reporte-filtros">
+          <div class="reporte-fechas">
+            <div class="reporte-campo">
+              <label for="reporte-desde">Desde</label>
+              <input type="date" id="reporte-desde" value="${haceUnMes}">
+            </div>
+            <div class="reporte-campo">
+              <label for="reporte-hasta">Hasta</label>
+              <input type="date" id="reporte-hasta" value="${hoy}">
+            </div>
+          </div>
+          <button class="reporte-btn-consultar" id="btn-consultar-reporte">
+            <i class='bx bx-search'></i> Consultar
+          </button>
+        </div>
+      </div>
+
+      <div class="card reporte-tabla-card">
+        <div class="reporte-tabla-header">
+          <div class="metric-title" id="reporte-titulo">Reporte de Ventas</div>
+          <button class="reporte-btn-exportar" id="btn-exportar-excel" disabled>
+            <i class='bx bx-download'></i> Exportar Excel
+          </button>
+        </div>
+        <div class="activity-table-wrapper">
+          <table class="activity-table">
+            <thead id="reporte-thead">
+              <tr>
+                <th>Fecha</th>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody id="reporte-tbody">
+              <tr>
+                <td colspan="5" class="usuarios-vacio">Selecciona un reporte y haz clic en Consultar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  `;
+}
+
+async function cargarVistaReportes() {
+  elementos.vista.innerHTML = construirVistaReportes();
+
+  const tabs = document.querySelectorAll(".reporte-tab");
+  const btnConsultar = document.getElementById("btn-consultar-reporte");
+  const btnExportar = document.getElementById("btn-exportar-excel");
+
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => t.classList.remove("activo"));
+      tab.classList.add("activo");
+      estadoDashboard.reporteActivo = tab.dataset.tipo;
+
+      const config = CONFIG_REPORTE[estadoDashboard.reporteActivo];
+      const filtros = document.getElementById("reporte-filtros");
+
+      if (config.requiereFechas) {
+        filtros.style.display = "";
+      } else {
+        filtros.style.display = "none";
+      }
+
+      const titulo = document.getElementById("reporte-titulo");
+      if (titulo) titulo.textContent = config.titulo;
+
+      actualizarThead(config.columnas);
+      limpiarTbody(config.columnas.length, "Haz clic en Consultar para ver los datos");
+      btnExportar.disabled = true;
+      estadoDashboard.datosReporte = [];
+    });
+  });
+
+  if (btnConsultar) {
+    btnConsultar.addEventListener("click", consultarReporte);
+  }
+
+  if (btnExportar) {
+    btnExportar.addEventListener("click", exportarExcel);
+  }
+
+  actualizarIconoDark();
+}
+
+function actualizarThead(columnas) {
+  const thead = document.getElementById("reporte-thead");
+  if (!thead) return;
+  thead.innerHTML = `<tr>${columnas.map((c) => `<th>${c}</th>`).join("")}</tr>`;
+}
+
+function limpiarTbody(colspan, mensaje) {
+  const tbody = document.getElementById("reporte-tbody");
+  if (!tbody) return;
+  tbody.innerHTML = `<tr><td colspan="${colspan}" class="usuarios-vacio">${mensaje}</td></tr>`;
+}
+
+async function consultarReporte() {
+  const tipo = estadoDashboard.reporteActivo;
+  const config = CONFIG_REPORTE[tipo];
+  const btnExportar = document.getElementById("btn-exportar-excel");
+
+  let url = config.endpoint;
+
+  if (config.requiereFechas) {
+    const desde = document.getElementById("reporte-desde").value;
+    const hasta = document.getElementById("reporte-hasta").value;
+
+    if (!desde || !hasta) {
+      Swal.fire({ icon: "warning", title: "Fechas requeridas", text: "Selecciona fecha desde y hasta" });
+      return;
+    }
+
+    if (desde > hasta) {
+      Swal.fire({ icon: "warning", title: "Rango inválido", text: "La fecha 'Desde' no puede ser mayor que 'Hasta'" });
+      return;
+    }
+
+    url += `?desde=${desde}&hasta=${hasta}`;
+  }
+
+  limpiarTbody(config.columnas.length, "Cargando...");
+
+  try {
+    const datos = await clienteApi.solicitarJson(url, { method: "GET" });
+    estadoDashboard.datosReporte = Array.isArray(datos) ? datos : (datos.datos || datos.reporte || []);
+
+    renderizarTablaReporte(config);
+
+    if (btnExportar) {
+      btnExportar.disabled = estadoDashboard.datosReporte.length === 0;
+    }
+  } catch (error) {
+    limpiarTbody(config.columnas.length, "Error al cargar el reporte");
+    mostrarErrorServidor(error, "No se pudo obtener el reporte");
+  }
+}
+
+function renderizarTablaReporte(config) {
+  const tbody = document.getElementById("reporte-tbody");
+  if (!tbody) return;
+
+  if (estadoDashboard.datosReporte.length === 0) {
+    limpiarTbody(config.columnas.length, "No hay datos para el rango seleccionado");
+    return;
+  }
+
+  tbody.innerHTML = estadoDashboard.datosReporte.map((fila) => {
+    const celdas = config.keys.map((key) => {
+      let valor = fila[key] ?? "";
+
+      if (key === "total" || key === "precio_unitario" || key === "precio") {
+        valor = formatearMoneda(valor);
+      }
+
+      if (key === "estado") {
+        let clasePill = "pendiente";
+        const estadoLower = String(valor).toLowerCase();
+        if (estadoLower.includes("entregado") || estadoLower.includes("completado")) {
+          clasePill = "entregado";
+        } else if (estadoLower.includes("cancelado")) {
+          clasePill = "cancelado";
+        }
+        return `<td><span class="status-pill ${clasePill}">${escaparHtml(valor)}</span></td>`;
+      }
+
+      if (key === "stock") {
+        const stockNum = Number(valor);
+        if (stockNum <= 3) {
+          return `<td><span class="status-pill cancelado">${stockNum} uds</span></td>`;
+        }
+        if (stockNum <= 10) {
+          return `<td><span class="status-pill pendiente">${stockNum} uds</span></td>`;
+        }
+        return `<td>${stockNum} uds</td>`;
+      }
+
+      return `<td>${escaparHtml(String(valor))}</td>`;
+    }).join("");
+
+    return `<tr>${celdas}</tr>`;
+  }).join("");
+}
+
+function exportarExcel() {
+  const tipo = estadoDashboard.reporteActivo;
+  const config = CONFIG_REPORTE[tipo];
+
+  if (estadoDashboard.datosReporte.length === 0) {
+    Swal.fire({ icon: "info", title: "Sin datos", text: "No hay datos para exportar" });
+    return;
+  }
+
+  const filasExcel = estadoDashboard.datosReporte.map((fila) => {
+    const obj = {};
+    config.columnas.forEach((col, i) => {
+      obj[col] = fila[config.keys[i]] ?? "";
+    });
+    return obj;
+  });
+
+  const ws = XLSX.utils.json_to_sheet(filasExcel);
+
+  const colWidths = config.columnas.map((col) => {
+    const maxLen = Math.max(
+      col.length,
+      ...filasExcel.map((f) => String(f[col]).length)
+    );
+    return { wch: Math.min(maxLen + 4, 40) };
+  });
+  ws["!cols"] = colWidths;
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, config.titulo);
+
+  let nombreArchivo = `${config.titulo.replace(/\s+/g, "_")}`;
+
+  if (config.requiereFechas) {
+    const desde = document.getElementById("reporte-desde").value;
+    const hasta = document.getElementById("reporte-hasta").value;
+    nombreArchivo += `_${desde}_a_${hasta}`;
+  }
+
+  XLSX.writeFile(wb, `${nombreArchivo}.xlsx`);
+
+  Swal.fire({
+    icon: "success",
+    title: "Excel generado",
+    text: `${nombreArchivo}.xlsx se descargó correctamente`,
+    timer: 2000,
+    showConfirmButton: false
   });
 }
 
