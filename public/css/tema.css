@@ -158,6 +158,7 @@
 .icon-ventas   { background: #dbeafe; color: #1d4ed8; }
 .icon-pedidos  { background: #dcfce7; color: #16a34a; }
 .icon-usuarios { background: #fef9c3; color: #ca8a04; }
+.icon-productos { background: #ede9fe; color: #7c3aed; }
 
 /* ── Grid positions ── */
 .div1 { grid-column: 1; grid-row: 1; }
@@ -369,6 +370,7 @@ body.dark .dash-header .dash-fecha { color: var(--dark-stat-label); }
 body.dark .icon-ventas   { background: #1e3a5f; color: #60a5fa; }
 body.dark .icon-pedidos  { background: #052e16; color: #4ade80; }
 body.dark .icon-usuarios { background: #2d2000; color: #facc15; }
+body.dark .icon-productos { background: #2e1065; color: #c084fc; }
 
 body.dark .metric-title { color: var(--dark-stat-val); }
 body.dark .metric-placeholder {
@@ -713,6 +715,86 @@ body.dark .modal-btns .btn-cancel {
 }
 .modal-btns button:hover { opacity: 0.85; }
 
+/* ── Dashboard 4-column grid ── */
+.parent-dashboard {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+.parent-dashboard .dash-stat-1 { grid-column: 1; grid-row: 1; }
+.parent-dashboard .dash-stat-2 { grid-column: 2; grid-row: 1; }
+.parent-dashboard .dash-stat-3 { grid-column: 3; grid-row: 1; }
+.parent-dashboard .dash-stat-4 { grid-column: 4; grid-row: 1; }
+
+.parent-dashboard .dash-chart-top {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  min-height: 300px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.parent-dashboard .dash-chart-cat {
+  grid-column: 3 / 5;
+  grid-row: 2;
+  min-height: 300px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.parent-dashboard .dash-activity {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+  max-height: 450px;
+  overflow: hidden;
+}
+
+/* ── Productos 4-column grid ── */
+.parent-productos {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+.parent-productos .prod-stat-1 { grid-column: 1; grid-row: 1; }
+.parent-productos .prod-stat-2 { grid-column: 2; grid-row: 1; }
+.parent-productos .prod-stat-3 { grid-column: 3; grid-row: 1; }
+.parent-productos .prod-stat-4 { grid-column: 4; grid-row: 1; }
+
+.parent-productos .prod-chart-top {
+  grid-column: 1 / 3;
+  grid-row: 2;
+  min-height: 300px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.parent-productos .prod-chart-cat {
+  grid-column: 3 / 5;
+  grid-row: 2;
+  min-height: 300px;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.parent-productos .prod-tabla-bajo {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display: flex;
+  flex-direction: column;
+  min-height: 280px;
+  max-height: 400px;
+  overflow: hidden;
+}
+
+/* Contenedor de gráficos */
+.chart-container {
+  flex: 1;
+  width: 100%;
+  position: relative;
+  min-height: 220px;
+}
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   .parent {
@@ -723,6 +805,36 @@ body.dark .modal-btns .btn-cancel {
   .div4 { grid-column: 1 / -1; }
   .div5-chart { grid-column: 1 / -1; }
   .div6-activity { grid-column: 1 / -1; }
+
+  .parent-dashboard {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .parent-dashboard .dash-stat-1,
+  .parent-dashboard .dash-stat-2,
+  .parent-dashboard .dash-stat-3,
+  .parent-dashboard .dash-stat-4 {
+    grid-column: span 1;
+  }
+  .parent-dashboard .dash-chart-top,
+  .parent-dashboard .dash-chart-cat,
+  .parent-dashboard .dash-activity {
+    grid-column: 1 / -1;
+  }
+
+  .parent-productos {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .parent-productos .prod-stat-1,
+  .parent-productos .prod-stat-2,
+  .parent-productos .prod-stat-3,
+  .parent-productos .prod-stat-4 {
+    grid-column: span 1;
+  }
+  .parent-productos .prod-chart-top,
+  .parent-productos .prod-chart-cat,
+  .parent-productos .prod-tabla-bajo {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 640px) {
@@ -771,6 +883,32 @@ body.dark .modal-btns .btn-cancel {
     grid-template-columns: 1fr;
   }
   .div1, .div2, .div3, .div4, .div5-chart, .div6-activity {
+    grid-column: 1;
+  }
+
+  .parent-dashboard {
+    grid-template-columns: 1fr !important;
+  }
+  .parent-dashboard .dash-stat-1,
+  .parent-dashboard .dash-stat-2,
+  .parent-dashboard .dash-stat-3,
+  .parent-dashboard .dash-stat-4,
+  .parent-dashboard .dash-chart-top,
+  .parent-dashboard .dash-chart-cat,
+  .parent-dashboard .dash-activity {
+    grid-column: 1;
+  }
+
+  .parent-productos {
+    grid-template-columns: 1fr !important;
+  }
+  .parent-productos .prod-stat-1,
+  .parent-productos .prod-stat-2,
+  .parent-productos .prod-stat-3,
+  .parent-productos .prod-stat-4,
+  .parent-productos .prod-chart-top,
+  .parent-productos .prod-chart-cat,
+  .parent-productos .prod-tabla-bajo {
     grid-column: 1;
   }
 
