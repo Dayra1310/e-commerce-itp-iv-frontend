@@ -59,7 +59,6 @@ Usualmente para este tipo de modulos se maneja asi, es facil de entender, modifi
 ![El login se ve asi](login.PNG)
 ![El dashboard se ve asi](dashboard.PNG)
 
-aun en desarrollo
 
 ------------------------------------------------------------------------
 ##  Autor
