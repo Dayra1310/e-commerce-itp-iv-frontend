@@ -742,13 +742,21 @@ body.dark .modal-btns .btn-cancel {
 }
 
 .parent-dashboard .dash-activity {
-  grid-column: 1 / -1;
+  grid-column: 1 / 3;
   grid-row: 3;
   display: flex;
   flex-direction: column;
   min-height: 300px;
   max-height: 50vh;
   overflow: hidden;
+}
+
+.parent-dashboard .dash-chart-ingresos {
+  grid-column: 3 / 5;
+  grid-row: 3;
+  min-height: 300px;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 /* ── Productos 4-column grid ── */
@@ -809,7 +817,8 @@ body.dark .modal-btns .btn-cancel {
   }
   .parent-dashboard .dash-chart-top,
   .parent-dashboard .dash-chart-cat,
-  .parent-dashboard .dash-activity {
+  .parent-dashboard .dash-activity,
+  .parent-dashboard .dash-chart-ingresos {
     grid-column: 1 / -1;
     max-height: none;
   }
@@ -888,7 +897,8 @@ body.dark .modal-btns .btn-cancel {
   .parent-dashboard .dash-stat-4,
   .parent-dashboard .dash-chart-top,
   .parent-dashboard .dash-chart-cat,
-  .parent-dashboard .dash-activity {
+  .parent-dashboard .dash-activity,
+  .parent-dashboard .dash-chart-ingresos {
     grid-column: 1;
     max-height: none;
   }
@@ -1127,31 +1137,39 @@ body.dark #tabla-usuarios button {
    SWEETALERT GLOBAL DARK
 ========================= */
 
+/* ── Popup oscuro centrado (errores, formularios, confirmaciones) ── */
 .swal2-popup.swal-dark {
-
   background: #111827 !important;
-
   color: #f9fafb !important;
-
   border: 1px solid rgba(255,255,255,0.06);
-
   border-radius: 18px !important;
-
-  box-shadow:
-    0 10px 35px rgba(0,0,0,0.45);
-
+  box-shadow: 0 10px 35px rgba(0,0,0,0.45);
   padding: 1.4rem;
-
   width: 360px;
+}
 
-  animation:
-    slideUpSwal 0.35s ease;
+/* ── Toast oscuro abajo-centro (notificaciones pequeñas) ── */
+.swal2-popup.swal-dark.swal-toast {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  padding: 0.75rem 1.1rem;
+  width: auto !important;
+  max-width: 380px;
+  min-width: 260px;
+  animation: slideUpSwal 0.35s ease;
 }
 
 /* TITULO */
 .swal2-popup.swal-dark .swal2-title {
   color: #ffffff;
-  font-size: 20px;
+  font-size: 18px;
+}
+.swal2-popup.swal-dark.swal-toast .swal2-title {
+  font-size: 14px;
+  font-weight: 600;
 }
 
 /* TEXTO */
@@ -1159,28 +1177,36 @@ body.dark #tabla-usuarios button {
   color: #d1d5db;
   font-size: 14px;
 }
+.swal2-popup.swal-dark.swal-toast .swal2-html-container {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 
 /* BOTÓN CONFIRMAR */
 .swal2-popup.swal-dark .swal2-confirm {
-
   background: #2563eb !important;
-
   border-radius: 10px !important;
-
   padding: 10px 18px;
-
   font-weight: 600;
 }
 
 /* BOTÓN CANCELAR */
 .swal2-popup.swal-dark .swal2-cancel {
-
   background: #1f2937 !important;
-
   border-radius: 10px !important;
-
   padding: 10px 18px;
+  color: #f9fafb !important;
+}
 
+/* BOTÓN ELIMINAR (rojo) */
+.swal2-popup.swal-dark .swal2-confirm.swal-btn-eliminar {
+  background: #dc2626 !important;
+  box-shadow: 0 4px 12px rgba(220,38,38,0.3);
+}
+.swal2-popup.swal-dark .swal2-cancel.swal-btn-cancelar {
+  background: #1f2937 !important;
   color: #f9fafb !important;
 }
 
@@ -1188,31 +1214,46 @@ body.dark #tabla-usuarios button {
 .swal2-popup.swal-dark .swal2-icon {
   border-color: rgba(255,255,255,0.15) !important;
 }
+.swal2-popup.swal-dark.swal-toast .swal2-icon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  min-height: 28px;
+  margin: 0 8px 0 0 !important;
+}
+
+/* Contenedor interno del toast */
+.swal2-popup.swal-toast.swal-dark .swal2-icon-text {
+  font-size: 16px !important;
+}
+
+/* BARRA DE PROGRESO DEL TIMER */
+.swal2-popup.swal-dark .swal-dark-bar {
+  background: rgba(255,255,255,0.2) !important;
+}
 
 /* BACKDROP */
 .swal2-container.swal2-backdrop-show {
-  background:
-    rgba(0,0,0,0.55) !important;
-
+  background: rgba(0,0,0,0.55) !important;
   backdrop-filter: blur(4px);
+}
+
+/* TOAST CONTAINER - quitar blur en toasts */
+.swal2-container.swal2-bottom {
+  backdrop-filter: none !important;
+}
+.swal2-container.swal2-bottom .swal2-popup.swal-toast {
+  pointer-events: auto;
 }
 
 /* ANIMACIÓN */
 @keyframes slideUpSwal {
-
   from {
-    transform:
-      translateY(80px)
-      scale(0.96);
-
+    transform: translateY(40px) scale(0.96);
     opacity: 0;
   }
-
   to {
-    transform:
-      translateY(0)
-      scale(1);
-
+    transform: translateY(0) scale(1);
     opacity: 1;
   }
 }

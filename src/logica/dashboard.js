@@ -8,6 +8,7 @@
 // PUT /usuario/imagen, GET /uploads/:archivo
 // GET /dashboard/resumen, GET /dashboard/productos-top,
 // GET /dashboard/categorias
+// GET /reportes/ventas → se usa para agrupar ingresos por mes (solo pagados)
 // ==========================================================
 
 const clienteApi = window.clienteApi;
@@ -22,6 +23,7 @@ const estadoDashboard = {
   graficoTopVendidos: null,
   graficoCategorias: null,
   graficoProdCategorias: null,
+  graficoIngresos: null,
   reporteActivo: "ventas",
   datosReporte: []
 };
@@ -82,13 +84,47 @@ function redirigirALogin() {
   window.location.href = "login.html";
 }
 
+// ==========================================================
+// Alertas SweetAlert globales (siempre oscuras)
+// ==========================================================
+function alertaToast(icon, title, text = "", timer = 2000) {
+  Swal.fire({
+    icon,
+    title,
+    text,
+    timer,
+    showConfirmButton: false,
+    position: "bottom",
+    toast: true,
+    timerProgressBar: true,
+    customClass: {
+      popup: "swal-dark swal-toast",
+      timerProgressBar: "swal-dark-bar"
+    }
+  });
+}
+
+function alertaCentro(icon, title, text = "") {
+  Swal.fire({
+    icon,
+    title,
+    text,
+    customClass: {
+      popup: "swal-dark"
+    }
+  });
+}
+
 function mostrarErrorServidor(error, mensajePorDefecto = "No se pudo completar la operación") {
   console.error(error);
 
   Swal.fire({
     icon: "error",
     title: error.status === 401 ? "Sesión expirada" : "Error",
-    text: error.message || mensajePorDefecto
+    text: error.message || mensajePorDefecto,
+    customClass: {
+      popup: "swal-dark"
+    }
   });
 }
 
@@ -292,6 +328,13 @@ function construirVistaDashboard() {
         </div>
       </div>
 
+      <div class="card dash-chart-ingresos">
+        <div class="metric-title">Ingresos por meses</div>
+        <div class="chart-container">
+          <canvas id="dash-grafico-ingresos"></canvas>
+        </div>
+      </div>
+
     </div>
   `;
 }
@@ -311,6 +354,10 @@ function destruirGraficosDashboard() {
   if (estadoDashboard.graficoProdCategorias) {
     estadoDashboard.graficoProdCategorias.destroy();
     estadoDashboard.graficoProdCategorias = null;
+  }
+  if (estadoDashboard.graficoIngresos) {
+    estadoDashboard.graficoIngresos.destroy();
+    estadoDashboard.graficoIngresos = null;
   }
 }
 
@@ -356,6 +403,7 @@ async function cargarDatosDashboard() {
       clienteApi.solicitarJson("/dashboard/resumen", { method: "GET" }),
       clienteApi.solicitarJson("/dashboard/productos-top", { method: "GET" }),
       clienteApi.solicitarJson("/dashboard/categorias", { method: "GET" }),
+      clienteApi.solicitarJson("/reportes/ventas", { method: "GET" }),
       obtenerUsuarios()
     ]);
 
@@ -391,6 +439,14 @@ async function cargarDatosDashboard() {
       crearGraficoCategorias(resultados[2].value);
     } else {
       console.error("Error al cargar categorías:", resultados[2].reason);
+    }
+
+    // ── Ingresos mensuales (agrupados desde /reportes/ventas, solo pagados) ──
+    if (resultados[3].status === "fulfilled") {
+      const datosMensuales = agruparIngresosPorMes(resultados[3].value);
+      crearGraficoIngresos(datosMensuales);
+    } else {
+      console.error("Error al cargar ventas para ingresos mensuales:", resultados[3].reason);
     }
 
     // ── Buscador de usuarios ──
@@ -504,7 +560,7 @@ function construirVistaProductos() {
       </div>
 
       <div class="card prod-chart-cat">
-        <div class="metric-title">Productos por categoría</div>
+        <div class="metric-title">Stock por categoría</div>
         <div class="chart-container">
           <canvas id="prod-grafico-categorias"></canvas>
         </div>
@@ -607,6 +663,7 @@ function crearGraficoProdCategorias(categorias) {
 
   const esDark = document.body.classList.contains("dark");
   const colorTexto = esDark ? "#e2e8f0" : "#374151";
+  const colorGrid = esDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
 
   const paletaColores = [
     "#7c3aed", "#3b82f6", "#10b981", "#f59e0b", "#ef4444",
@@ -614,33 +671,28 @@ function crearGraficoProdCategorias(categorias) {
     "#06b6d4", "#a855f7"
   ];
 
+  const colores = categorias.map((_, i) => paletaColores[i % paletaColores.length]);
+  const coloresHover = colores.map((c) => c + "cc");
+
   estadoDashboard.graficoProdCategorias = new Chart(canvas, {
-    type: "doughnut",
+    type: "bar",
     data: {
       labels: categorias.map((c) => c.nombre),
       datasets: [{
-        data: categorias.map((c) => c.productos),
-        backgroundColor: paletaColores.slice(0, categorias.length),
-        borderWidth: 2,
-        borderColor: esDark ? "#1e293b" : "#ffffff",
-        hoverOffset: 6
+        label: "Stock",
+        data: categorias.map((c) => c.stock_total ?? c.productos ?? 0),
+        backgroundColor: colores,
+        hoverBackgroundColor: coloresHover,
+        borderRadius: 8,
+        borderSkipped: false,
+        maxBarThickness: 52
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      cutout: "55%",
       plugins: {
-        legend: {
-          position: "bottom",
-          labels: {
-            color: colorTexto,
-            padding: 14,
-            font: { size: 12 },
-            usePointStyle: true,
-            pointStyleWidth: 10
-          }
-        },
+        legend: { display: false },
         tooltip: {
           backgroundColor: esDark ? "#1e293b" : "#ffffff",
           titleColor: esDark ? "#f1f5f9" : "#111827",
@@ -651,11 +703,28 @@ function crearGraficoProdCategorias(categorias) {
           cornerRadius: 8,
           callbacks: {
             label: function (item) {
-              const total = item.dataset.data.reduce((a, b) => a + b, 0);
-              const porcentaje = total > 0 ? ((item.raw / total) * 100).toFixed(1) : 0;
-              return `  ${item.label}: ${item.raw} (${porcentaje}%)`;
+              return `  Stock: ${item.raw} uds`;
             }
           }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: colorTexto,
+            font: { size: 11 },
+            maxRotation: 45,
+            minRotation: 0
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            color: colorTexto,
+            font: { size: 11 }
+          },
+          grid: { color: colorGrid },
+          beginAtZero: true
         }
       }
     }
@@ -797,6 +866,143 @@ function crearGraficoCategorias(categorias) {
               return `  ${item.label}: ${item.raw} (${porcentaje}%)`;
             }
           }
+        }
+      }
+    }
+  });
+}
+
+// ==========================================================
+// Gráfico de Ingresos Mensuales (Line Chart)
+// Agrupa las ventas desde /reportes/ventas por mes
+// Solo cuenta ventas con estado_pago = 'pagado' (igual que la stat card)
+// ==========================================================
+const NOMBRES_MESES = [
+  "Ene", "Feb", "Mar", "Abr", "May", "Jun",
+  "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"
+];
+
+function agruparIngresosPorMes(ventas) {
+  const ventasArray = Array.isArray(ventas) ? ventas : [];
+
+  // Agrupar totales por clave "YYYY-MM"
+  const ingresosPorMes = {};
+  ventasArray.forEach((venta) => {
+    // Solo contar ventas pagadas (igual que el resumen del dashboard)
+    const estado = String(venta.estado || "").toLowerCase().trim();
+    if (estado !== "pagado") return;
+
+    const fecha = venta.fecha || "";
+    const match = fecha.match(/^(\d{4})-(\d{2})/);
+    if (!match) return;
+
+    const clave = `${match[1]}-${match[2]}`;
+    const total = Number(venta.total) || 0;
+
+    ingresosPorMes[clave] = (ingresosPorMes[clave] || 0) + total;
+  });
+
+  // Ordenar por mes y construir el array de resultados
+  const clavesOrdenadas = Object.keys(ingresosPorMes).sort();
+
+  // Mostrar máximo los últimos 12 meses
+  const ultimos12 = clavesOrdenadas.slice(-12);
+
+  return ultimos12.map((clave) => {
+    const [anio, mes] = clave.split("-");
+    const mesNum = parseInt(mes, 10) - 1;
+    return {
+      mes: `${NOMBRES_MESES[mesNum]} ${anio}`,
+      ingresos: ingresosPorMes[clave]
+    };
+  });
+}
+
+function crearGraficoIngresos(datos) {
+  const canvas = document.getElementById("dash-grafico-ingresos");
+  if (!canvas) return;
+
+  if (estadoDashboard.graficoIngresos) {
+    estadoDashboard.graficoIngresos.destroy();
+    estadoDashboard.graficoIngresos = null;
+  }
+
+  const esDark = document.body.classList.contains("dark");
+  const colorTexto = esDark ? "#e2e8f0" : "#374151";
+  const colorGrid = esDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)";
+
+  // Soportar diferentes formatos del backend
+  const meses = Array.isArray(datos)
+    ? datos.map((d) => d.mes ?? d.mes_nombre ?? d.label ?? "")
+    : [];
+  const ingresos = Array.isArray(datos)
+    ? datos.map((d) => d.ingresos ?? d.total ?? d.valor ?? 0)
+    : [];
+
+  estadoDashboard.graficoIngresos = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels: meses,
+      datasets: [{
+        label: "Ingresos",
+        data: ingresos,
+        borderColor: "#3b82f6",
+        backgroundColor: esDark
+          ? "rgba(59, 130, 246, 0.15)"
+          : "rgba(59, 130, 246, 0.10)",
+        borderWidth: 3,
+        pointBackgroundColor: "#3b82f6",
+        pointBorderColor: esDark ? "#1e293b" : "#ffffff",
+        pointBorderWidth: 2,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        pointHoverBorderWidth: 3,
+        fill: true,
+        tension: 0.35
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: esDark ? "#1e293b" : "#ffffff",
+          titleColor: esDark ? "#f1f5f9" : "#111827",
+          bodyColor: esDark ? "#cbd5e1" : "#374151",
+          borderColor: esDark ? "#334155" : "#e5e7eb",
+          borderWidth: 1,
+          padding: 10,
+          cornerRadius: 8,
+          callbacks: {
+            label: function (item) {
+              return `  Ingresos: ${formatearMoneda(item.raw)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: colorTexto,
+            font: { size: 11 },
+            maxRotation: 45,
+            minRotation: 0
+          },
+          grid: { display: false }
+        },
+        y: {
+          ticks: {
+            color: colorTexto,
+            font: { size: 11 },
+            callback: function (valor) {
+              if (valor >= 1000000) return `$${(valor / 1000000).toFixed(1)}M`;
+              if (valor >= 1000) return `$${(valor / 1000).toFixed(0)}K`;
+              return `$${valor}`;
+            }
+          },
+          grid: { color: colorGrid },
+          beginAtZero: true
         }
       }
     }
@@ -972,12 +1178,12 @@ async function consultarReporte() {
     const hasta = document.getElementById("reporte-hasta").value;
 
     if (!desde || !hasta) {
-      Swal.fire({ icon: "warning", title: "Fechas requeridas", text: "Selecciona fecha desde y hasta" });
+      alertaToast("warning", "Fechas requeridas", "Selecciona fecha desde y hasta");
       return;
     }
 
     if (desde > hasta) {
-      Swal.fire({ icon: "warning", title: "Rango inválido", text: "La fecha 'Desde' no puede ser mayor que 'Hasta'" });
+      alertaToast("warning", "Rango inválido", "La fecha 'Desde' no puede ser mayor que 'Hasta'");
       return;
     }
 
@@ -1052,7 +1258,7 @@ function exportarExcel() {
   const config = CONFIG_REPORTE[tipo];
 
   if (estadoDashboard.datosReporte.length === 0) {
-    Swal.fire({ icon: "info", title: "Sin datos", text: "No hay datos para exportar" });
+    alertaToast("info", "Sin datos", "No hay datos para exportar");
     return;
   }
 
@@ -1088,13 +1294,7 @@ function exportarExcel() {
 
   XLSX.writeFile(wb, `${nombreArchivo}.xlsx`);
 
-  Swal.fire({
-    icon: "success",
-    title: "Excel generado",
-    text: `${nombreArchivo}.xlsx se descargó correctamente`,
-    timer: 2000,
-    showConfirmButton: false
-  });
+  alertaToast("success", "Excel generado", `${nombreArchivo}.xlsx se descargó correctamente`, 2500);
 }
 
 // ==========================================================
@@ -1207,7 +1407,7 @@ async function agregarUsuario() {
   Swal.fire({
     title: "Agregar Usuario",
     customClass: {
-      popup: "modal-usuario"
+      popup: "modal-usuario swal-dark"
     },
     html: `
       <div class="formulario-usuario-swal">
@@ -1253,12 +1453,7 @@ async function agregarUsuario() {
   }).then((resultado) => {
     if (!resultado.isConfirmed) return;
 
-    Swal.fire({
-      icon: "success",
-      title: "Usuario agregado",
-      timer: 1500,
-      showConfirmButton: false
-    });
+    alertaToast("success", "Usuario agregado");
 
     cargarUsuariosTabla();
   });
@@ -1278,7 +1473,7 @@ async function editarUsuario(usuario) {
   Swal.fire({
     title: "Editar Usuario",
     customClass: {
-      popup: "modal-usuario"
+      popup: "modal-usuario swal-dark"
     },
     html: `
       <div class="formulario-usuario-swal">
@@ -1327,12 +1522,7 @@ async function editarUsuario(usuario) {
   }).then((resultado) => {
     if (!resultado.isConfirmed) return;
 
-    Swal.fire({
-      icon: "success",
-      title: "Usuario actualizado",
-      timer: 1500,
-      showConfirmButton: false
-    });
+    alertaToast("success", "Usuario actualizado");
 
     cargarUsuariosTabla();
   });
@@ -1345,7 +1535,12 @@ async function eliminarUsuario(id) {
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "Eliminar",
-    cancelButtonText: "Cancelar"
+    cancelButtonText: "Cancelar",
+    customClass: {
+      popup: "swal-dark",
+      confirmButton: "swal-btn-eliminar",
+      cancelButton: "swal-btn-cancelar"
+    }
   });
 
   if (!confirmacion.isConfirmed) return;
@@ -1355,12 +1550,7 @@ async function eliminarUsuario(id) {
       method: "DELETE"
     });
 
-    Swal.fire({
-      icon: "success",
-      title: "Usuario eliminado",
-      timer: 1500,
-      showConfirmButton: false
-    });
+    alertaToast("success", "Usuario eliminado");
 
     cargarUsuariosTabla();
   } catch (error) {
@@ -1388,11 +1578,7 @@ function validarImagen(archivo) {
 async function subirImagen(archivo) {
   const errorValidacion = validarImagen(archivo);
   if (errorValidacion) {
-    Swal.fire({
-      icon: "warning",
-      title: "Imagen inválida",
-      text: errorValidacion
-    });
+    alertaToast("warning", "Imagen inválida", errorValidacion);
     return false;
   }
 
@@ -1409,12 +1595,7 @@ async function subirImagen(archivo) {
     elementos.fotoDePerfil.src = nuevaUrlImagen;
     elementos.imagenGrande.src = nuevaUrlImagen;
 
-    await Swal.fire({
-      icon: "success",
-      title: "Imagen actualizada",
-      timer: 1500,
-      showConfirmButton: false
-    });
+    alertaToast("success", "Imagen actualizada");
 
     return true;
   } catch (error) {
