@@ -717,7 +717,7 @@ body.dark .badge-rol {
 }
 
 .btn-editar-usuario {
-  background: #2563eb;
+  background: transparent;
 }
 
 .btn-editar-usuario:hover {
@@ -725,7 +725,7 @@ body.dark .badge-rol {
 }
 
 .btn-eliminar-usuario {
-  background: #dc2626;
+  background: transparent;
 }
 
 .btn-eliminar-usuario:hover {
