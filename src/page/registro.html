@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrarse - ShopITP</title>
+
+  <!-- ===== CSS del equipo (archivos compartidos via ../../public/) ===== -->
+  <!-- tema.css: variables de color, modo oscuro global -->
+  <link rel="stylesheet" href="../../public/css/tema.css" onerror="console.warn('[Registro] tema.css no encontrado, usando fallback del modulo')">
+  <!-- styles.css: estilos compartidos del equipo -->
+  <link rel="stylesheet" href="../../public/css/styles.css" onerror="console.warn('[Registro] styles.css no encontrado')">
+
+  <!-- ===== CSS del modulo registro (local) ===== -->
+  <link rel="stylesheet" href="../../public/css/registro.css">
+</head>
+<body class="register-page">
+
+  <!-- Particulas de fondo -->
+  <div class="register-particles" id="particles"></div>
+
+  <!-- Contenedor principal -->
+  <div class="register-wrapper">
+    <!-- Lado izquierdo - Decoracion -->
+    <div class="register-left">
+      <div class="register-left-content">
+        <div class="register-logo-anim">
+          <div class="logo-icon-large">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          </div>
+        </div>
+        <h1 class="register-left-title">ShopITP</h1>
+        <p class="register-left-subtitle">Tu tienda en linea de confianza</p>
+        <div class="register-features">
+          <div class="register-feature" style="animation-delay:0.2s;">
+            <div class="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+            </div>
+            <div>
+              <span class="feature-title">Catalogo Completo</span>
+              <span class="feature-desc">Miles de productos disponibles</span>
+            </div>
+          </div>
+          <div class="register-feature" style="animation-delay:0.4s;">
+            <div class="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <div>
+              <span class="feature-title">Compras Seguras</span>
+              <span class="feature-desc">Tus datos siempre protegidos</span>
+            </div>
+          </div>
+          <div class="register-feature" style="animation-delay:0.6s;">
+            <div class="feature-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div>
+              <span class="feature-title">Envio Rapido</span>
+              <span class="feature-desc">Entrega a todo el pais</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lado derecho - Formulario -->
+    <div class="register-right">
+      <div class="register-form-container">
+        <!-- Animacion de exito (oculta por defecto) -->
+        <div class="register-success" id="register-success" style="display:none;">
+          <div class="success-checkmark">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <h2 class="success-title">Registro Exitoso</h2>
+          <p class="success-desc">Tu cuenta ha sido creada correctamente. Ahora seras redirigido al catálogo.</p>
+          <div class="success-loader">
+            <div class="success-loader-bar"></div>
+          </div>
+        </div>
+
+        <!-- Formulario de registro -->
+        <div class="register-form-wrapper" id="register-form-wrapper">
+          <!-- Header del form -->
+          <div class="register-form-header">
+            <a href="login.html" class="register-back-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+              Volver al login
+            </a>
+            <div class="register-form-title-group">
+              <h2 class="register-form-title">Crear Cuenta</h2>
+              <p class="register-form-subtitle">Completa tus datos para comenzar</p>
+            </div>
+          </div>
+
+          <!-- Formulario -->
+          <form id="register-form" class="register-form" novalidate>
+            <!-- Nombre -->
+            <div class="form-field" data-delay="0">
+              <label class="form-label" for="reg-name">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Nombre Completo
+              </label>
+              <div class="input-wrapper">
+                <input type="text" id="reg-name" class="form-input" placeholder="Ej: Juan Perez" required autocomplete="name">
+                <div class="input-status" id="status-name"></div>
+              </div>
+              <span class="field-error" id="error-name"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="form-field" data-delay="1">
+              <label class="form-label" for="reg-email">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                Correo Electronico
+              </label>
+              <div class="input-wrapper">
+                <input type="email" id="reg-email" class="form-input" placeholder="Ej: juan@gmail.com" required autocomplete="email">
+                <div class="input-status" id="status-email"></div>
+              </div>
+              <span class="field-error" id="error-email"></span>
+            </div>
+
+            <!-- Telefono -->
+            <div class="form-field" data-delay="2">
+              <label class="form-label" for="reg-phone">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                Telefono
+              </label>
+              <div class="input-wrapper">
+                <input type="tel" id="reg-phone" class="form-input" placeholder="Ej: 3001234567" required autocomplete="tel">
+                <div class="input-status" id="status-phone"></div>
+              </div>
+              <span class="field-error" id="error-phone"></span>
+            </div>
+
+            <!-- Contrasena -->
+            <div class="form-field" data-delay="3">
+              <label class="form-label" for="reg-password">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Contrasena
+              </label>
+              <div class="input-wrapper">
+                <input type="password" id="reg-password" class="form-input has-toggle" placeholder="Minimo 6 caracteres" required autocomplete="new-password">
+                <button type="button" class="toggle-password" data-input="reg-password">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-off-icon" style="display:none;"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                </button>
+                <div class="input-status" id="status-password"></div>
+              </div>
+              <div class="password-strength" id="password-strength">
+                <div class="strength-bars">
+                  <div class="strength-bar" id="str-1"></div>
+                  <div class="strength-bar" id="str-2"></div>
+                  <div class="strength-bar" id="str-3"></div>
+                  <div class="strength-bar" id="str-4"></div>
+                </div>
+                <span class="strength-text" id="strength-text"></span>
+              </div>
+              <span class="field-error" id="error-password"></span>
+            </div>
+
+            <!-- Confirmar Contrasena -->
+            <div class="form-field" data-delay="4">
+              <label class="form-label" for="reg-confirm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                Confirmar Contrasena
+              </label>
+              <div class="input-wrapper">
+                <input type="password" id="reg-confirm" class="form-input has-toggle" placeholder="Repite tu contrasena" required autocomplete="new-password">
+                <button type="button" class="toggle-password" data-input="reg-confirm">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-icon"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-off-icon" style="display:none;"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" x2="22" y1="2" y2="22"/></svg>
+                </button>
+                <div class="input-status" id="status-confirm"></div>
+              </div>
+              <span class="field-error" id="error-confirm"></span>
+            </div>
+
+            <!-- Error general -->
+            <div class="form-general-error" id="general-error" style="display:none;"></div>
+
+            <!-- Boton de registro -->
+            <button type="submit" class="register-btn" id="register-btn">
+              <span class="btn-text">Crear mi Cuenta</span>
+              <span class="btn-loading" style="display:none;">
+                <div class="btn-spinner"></div>
+                Creando cuenta...
+              </span>
+            </button>
+          </form>
+
+          <!-- Link a login -->
+          <div class="register-login-link">
+            <p>Ya tienes una cuenta? <a href="login.html">Inicia Sesion</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== JavaScript ===== -->
+  <!-- api.js: cliente API compartido (opcional, desde ../../public/) -->
+  <!-- Si carga, registro.js usa authApi.register(). Si no, usa fetch directo. -->
+  <script src="../logica/api.js" onerror="console.warn('[Registro] api.js no encontrado en ../../public/js/, se usara fetch directo')"></script>
+
+  <!-- registro.js: logica del formulario de registro (local) -->
+  <script src="../logica/registro.js"></script>
+</body>
+</html>

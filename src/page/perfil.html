@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Perfil - ShopITP</title>
+    <link rel="stylesheet" href="../../public/css/tema.css" />
+    <link rel="stylesheet" href="../../public/css/styles.css" />
+    <link rel="stylesheet" href="../../public/css/catalogo.css" />
+    <link rel="stylesheet" href="../../public/css/perfil.css" />
+    <meta name="api-base-url" content="" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+
+    <!-- Navbar -->
+    <header class="cat-navbar">
+      <div class="cat-navbar-inner">
+        <a href="catalogo.html" class="cat-navbar-brand">
+          <span class="cat-brand-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </span>
+          <span class="cat-brand-text">ShopITP</span>
+        </a>
+        <nav class="cat-navbar-nav">
+          <a href="catalogo.html" class="cat-nav-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Catálogo
+          </a>
+          <a href="carrito.html" class="cat-nav-link">Carrito</a>
+          <a href="perfil.html" class="cat-nav-link active">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Mi Perfil
+          </a>
+        </nav>
+        <div class="cat-navbar-actions" id="navbar-actions"></div>
+      </div>
+    </header>
+
+    <main class="pf-main">
+      <!-- Loading Skeleton -->
+      <div id="loading-state" class="pf-loading">
+        <div class="pf-loading-header">
+          <div class="pf-skeleton-avatar"></div>
+          <div class="pf-loading-text">
+            <div class="cat-skeleton" style="height:22px;width:160px;margin-bottom:8px;border-radius:8px;"></div>
+            <div class="cat-skeleton" style="height:14px;width:220px;border-radius:6px;"></div>
+          </div>
+        </div>
+        <div class="pf-loading-grid">
+          <div class="cat-skeleton" style="height:320px;width:100%;border-radius:16px;"></div>
+          <div class="cat-skeleton" style="height:320px;width:100%;border-radius:16px;"></div>
+        </div>
+      </div>
+
+      <!-- Not Logged In -->
+      <div id="not-logged-state" style="display:none;">
+        <div class="pf-not-logged">
+          <div class="pf-not-logged-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <h2 class="pf-not-logged-title">No has iniciado sesión</h2>
+          <p class="pf-not-logged-desc">Inicia sesión para ver y editar tu perfil</p>
+          <a href="login.html" class="cat-btn cat-btn-primary cat-btn-lg pf-not-logged-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Iniciar Sesión
+          </a>
+        </div>
+      </div>
+
+      <!-- Profile Content -->
+      <div id="profile-content" style="display:none;">
+
+        <!-- Profile Hero Card -->
+        <div class="pf-hero-card pf-animate-in" data-delay="0">
+          <div class="pf-hero-banner">
+            <div class="pf-hero-banner-deco"></div>
+            <div class="pf-hero-banner-deco2"></div>
+            <div class="pf-hero-particles" id="hero-particles"></div>
+          </div>
+          <div class="pf-hero-body">
+            <div class="pf-avatar-wrap">
+              <div class="pf-avatar" id="profile-avatar"></div>
+              <div class="pf-avatar-ring"></div>
+              <div class="pf-avatar-status"></div>
+            </div>
+            <div class="pf-hero-info">
+              <h1 class="pf-hero-name" id="profile-name"></h1>
+              <p class="pf-hero-email" id="profile-email"></p>
+              <div class="pf-hero-badges" id="profile-badges"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="pf-stats-row pf-animate-in" data-delay="1">
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            </div>
+            <div class="pf-stat-content">
+              <span class="pf-stat-label">Rol</span>
+              <span class="pf-stat-value" id="stat-rol">—</span>
+            </div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="pf-stat-content">
+              <span class="pf-stat-label">Estado</span>
+              <span class="pf-stat-value pf-stat-active">Activo</span>
+            </div>
+          </div>
+          <div class="pf-stat-card">
+            <div class="pf-stat-icon pf-stat-icon-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="pf-stat-content">
+              <span class="pf-stat-label">Registro</span>
+              <span class="pf-stat-value" id="stat-fecha">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Two Column Grid -->
+        <div class="pf-grid">
+
+          <!-- Left: Personal Info -->
+          <div class="pf-card pf-animate-in" data-delay="2">
+            <div class="pf-card-header">
+              <div class="pf-card-header-left">
+                <div class="pf-card-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </div>
+                <div>
+                  <h3 class="pf-card-title">Información Personal</h3>
+                  <p class="pf-card-subtitle">Tus datos de cuenta</p>
+                </div>
+              </div>
+              <button class="pf-btn-edit" id="btn-edit-profile" onclick="toggleEditProfile()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Editar
+              </button>
+            </div>
+
+            <!-- View Mode -->
+            <div class="pf-info-list" id="personal-info"></div>
+
+            <!-- Edit Mode -->
+            <div id="edit-profile-form" class="pf-edit-form-wrap">
+              <div class="pf-edit-form">
+                <div class="pf-form-group">
+                  <label class="pf-label" for="edit-nombre">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Nombre
+                  </label>
+                  <input type="text" id="edit-nombre" class="pf-input" placeholder="Tu nombre completo">
+                </div>
+                <div class="pf-form-group">
+                  <label class="pf-label" for="edit-email">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    Correo Electrónico
+                  </label>
+                  <input type="email" id="edit-email" class="pf-input pf-input-disabled" disabled>
+                  <span class="pf-help-text">El correo no se puede cambiar</span>
+                </div>
+                <div class="pf-form-group">
+                  <label class="pf-label" for="edit-telefono">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    Teléfono
+                  </label>
+                  <input type="tel" id="edit-telefono" class="pf-input" placeholder="Ej: +57 312 345 6789">
+                </div>
+                <div class="pf-form-actions">
+                  <button class="pf-btn pf-btn-primary" id="btn-save-profile" onclick="saveProfile()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                    Guardar Cambios
+                  </button>
+                  <button class="pf-btn pf-btn-ghost" onclick="cancelEditProfile()">Cancelar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Config -->
+          <div class="pf-card pf-animate-in" data-delay="3">
+            <div class="pf-card-header">
+              <div class="pf-card-header-left">
+                <div class="pf-card-icon pf-card-icon-purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </div>
+                <div>
+                  <h3 class="pf-card-title">Configuración</h3>
+                  <p class="pf-card-subtitle">Ajustes de tu cuenta</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <div class="pf-config-item" onclick="toggleTheme()">
+              <div class="pf-config-left">
+                <div class="pf-config-icon-wrap pf-config-icon-amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                </div>
+                <div class="pf-config-info">
+                  <span class="pf-config-title">Modo Oscuro</span>
+                  <span class="pf-config-desc">Cambia entre tema claro y oscuro</span>
+                </div>
+              </div>
+              <label class="pf-toggle" onclick="event.stopPropagation()">
+                <input type="checkbox" class="pf-theme-toggle" onchange="toggleTheme()">
+                <span class="pf-slider"></span>
+              </label>
+            </div>
+
+            <!-- Change Password -->
+            <div class="pf-config-item" onclick="toggleChangePassword()" id="config-password-trigger">
+              <div class="pf-config-left">
+                <div class="pf-config-icon-wrap pf-config-icon-blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div class="pf-config-info">
+                  <span class="pf-config-title">Cambiar Contraseña</span>
+                  <span class="pf-config-desc">Actualiza tu contraseña de acceso</span>
+                </div>
+              </div>
+              <div class="pf-config-arrow" id="password-arrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;"><polyline points="6 9 12 15 18 9"/></svg>
+              </div>
+            </div>
+
+            <!-- Password Form (Accordion) -->
+            <div id="change-password-form" class="pf-accordion-content">
+              <div class="pf-password-form">
+                <div class="pf-form-group">
+                  <label class="pf-label" for="current-password">Contraseña Actual</label>
+                  <input type="password" id="current-password" class="pf-input" placeholder="Ingresa tu contraseña actual">
+                </div>
+                <div class="pf-form-group">
+                  <label class="pf-label" for="new-password">Nueva Contraseña</label>
+                  <input type="password" id="new-password" class="pf-input" placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="pf-form-group">
+                  <label class="pf-label" for="confirm-password">Confirmar</label>
+                  <input type="password" id="confirm-password" class="pf-input" placeholder="Repite la nueva contraseña">
+                </div>
+                <div class="pf-form-actions">
+                  <button class="pf-btn pf-btn-primary" onclick="changePassword()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><polyline points="20 6 9 17 4 12"/></svg>
+                    Actualizar Contraseña
+                  </button>
+                  <button class="pf-btn pf-btn-ghost" onclick="toggleChangePassword()">Cancelar</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Logout -->
+            <div class="pf-config-item pf-config-danger" onclick="confirmLogout()">
+              <div class="pf-config-left">
+                <div class="pf-config-icon-wrap pf-config-icon-red">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </div>
+                <div class="pf-config-info">
+                  <span class="pf-config-title" style="color:#dc2626;">Cerrar Sesión</span>
+                  <span class="pf-config-desc">Salir de tu cuenta</span>
+                </div>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;color:#dc2626;"><polyline points="9 18 15 12 9 6"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="pf-actions-section pf-animate-in" data-delay="4">
+          <h3 class="pf-section-heading">Acciones Rápidas</h3>
+          <div class="pf-actions-grid">
+            <a href="catalogo.html" class="pf-action-card">
+              <div class="pf-action-icon pf-action-icon-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </div>
+              <div>
+                <span class="pf-action-title">Ir al Catálogo</span>
+                <span class="pf-action-desc">Explorar productos disponibles</span>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pf-action-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+            <a href="carrito.html" class="pf-action-card">
+              <div class="pf-action-icon pf-action-icon-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              </div>
+              <div>
+                <span class="pf-action-title">Mi Carrito</span>
+                <span class="pf-action-desc">Ver productos guardados</span>
+              </div>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pf-action-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="cat-footer">
+      <div class="cat-footer-inner">
+        <div>
+          <div style="display:flex;align-items:center;gap:0.625rem;">
+            <span class="cat-brand-icon" style="width:32px;height:32px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            </span>
+            <span class="cat-brand-text">ShopITP</span>
+          </div>
+          <p class="cat-footer-desc">Tu tienda en línea de confianza.</p>
+        </div>
+        <div>
+          <h4 class="cat-footer-title">Navegación</h4>
+          <ul class="cat-footer-links">
+            <li><a href="catalogo.html">Catálogo</a></li>
+            <li><a href="carrito.html">Carrito</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="cat-footer-title">Contacto</h4>
+          <ul class="cat-footer-links">
+            <li>contacto@shopitp.com</li>
+            <li>+57 312 345 6789</li>
+          </ul>
+        </div>
+      </div>
+      <div class="cat-footer-bottom">
+        <p>&copy; 2026 ShopITP. Proyecto académico ITP IV.</p>
+      </div>
+    </footer>
+
+    <script src="../logica/configuracion-api.js"></script>
+    <script src="../logica/perfil.js"></script>
+  </body>
+</html>
