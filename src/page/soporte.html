@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte Técnico</title>
+
+    <link rel="stylesheet" href="../../public/css/soporte.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <main class="soporte-container">
+
+        <!-- HEADER -->
+
+        <section class="header-section">
+            <div>
+                <h1>
+                    <i class="bi bi-headset"></i>
+                    Gestión de Soporte
+                </h1>
+
+                <p>
+                    Administración de tickets y solicitudes de clientes
+                </p>
+            </div>
+
+            <button id="btnRecargar" class="btn-primary">
+                <i class="bi bi-arrow-clockwise"></i>
+                Recargar
+            </button>
+        </section>
+
+        <!-- ESTADISTICAS -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <i class="bi bi-ticket-detailed"></i>
+                <div>
+                    <h3 id="totalTickets">0</h3>
+                    <p>Total Tickets</p>
+                </div>
+            </div>
+
+            <div class="stat-card abiertos">
+                <i class="bi bi-folder2-open"></i>
+                <div>
+                    <h3 id="ticketsAbiertos">0</h3>
+                    <p>Abiertos</p>
+                </div>
+            </div>
+
+            <div class="stat-card proceso">
+                <i class="bi bi-hourglass-split"></i>
+                <div>
+                    <h3 id="ticketsProceso">0</h3>
+                    <p>En Proceso</p>
+                </div>
+            </div>
+
+            <div class="stat-card respondidos">
+                <i class="bi bi-check-circle"></i>
+                <div>
+                    <h3 id="ticketsRespondidos">0</h3>
+                    <p>Respondidos</p>
+                </div>
+            </div>
+
+            <div class="stat-card cerrados">
+                <i class="bi bi-lock"></i>
+                <div>
+                    <h3 id="ticketsCerrados">0</h3>
+                    <p>Cerrados</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- FILTROS -->
+
+        <section class="filtros-section">
+
+            <div class="input-group">
+
+                <label for="filtroEstado">Estado</label>
+
+                <select id="filtroEstado">
+
+                    <option value="">
+                        Todos
+                    </option>
+
+                    <option value="abierto">
+                        Abierto
+                    </option>
+
+                    <option value="en_proceso">
+                        En Proceso
+                    </option>
+
+                    <option value="respondido">
+                        Respondido
+                    </option>
+
+                    <option value="cerrado">
+                        Cerrado
+                    </option>
+
+                    <option value="cancelado">
+                        Cancelado
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="input-group">
+
+                <label for="buscarTicket">Buscar Ticket</label>
+
+                <input
+                    type="text"
+                    id="buscarTicket"
+                    placeholder="Buscar por ID o asunto..."
+                >
+
+            </div>
+
+        </section>
+
+        <!-- TABLA -->
+
+        <section class="tabla-section">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Correo</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Fecha</th>
+                        <th>Acciones</th>
+                    </tr>
+
+                </thead>
+
+                <tbody id="tablaTickets">
+
+                    <tr>
+
+                        <td colspan="7" class="sin-datos">
+                            No hay tickets disponibles
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+    <!-- MODAL -->
+
+    <div id="modalTicket" class="modal">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <h2>
+                    Ticket #
+                    <span id="ticketId"></span>
+                </h2>
+
+                <button id="cerrarModal" type="button">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+
+            </div>
+
+            <div class="ticket-info">
+
+                <div class="info-item">
+                    <label>Cliente</label>
+                    <span id="ticketCliente"></span>
+                </div>
+
+                <div class="info-item">
+                    <label>Correo</label>
+                    <span id="ticketCorreo"></span>
+                </div>
+
+                <div class="info-item">
+                    <label>Tipo</label>
+                    <span id="ticketTipo"></span>
+                </div>
+
+                <div class="info-item">
+                    <label>Estado Actual</label>
+                    <span id="ticketEstado"></span>
+                </div>
+
+            </div>
+
+            <div class="editor-section">
+
+                <label for="ticketMensaje">Mensaje</label>
+
+                <textarea
+                    id="ticketMensaje"
+                    rows="8"
+                ></textarea>
+
+            </div>
+
+            <div class="editor-section">
+
+                <label for="nuevoEstado">Cambiar Estado</label>
+
+                <select id="nuevoEstado">
+
+                    <option value="abierto">
+                        Abierto
+                    </option>
+
+                    <option value="en_proceso">
+                        En Proceso
+                    </option>
+
+                    <option value="respondido">
+                        Respondido
+                    </option>
+
+                    <option value="cerrado">
+                        Cerrado
+                    </option>
+
+                    <option value="cancelado">
+                        Cancelado
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="adjuntos-section">
+
+                <h3>
+                    Adjuntos
+                </h3>
+
+                <div id="listaAdjuntos">
+
+                </div>
+
+            </div>
+
+            <div class="modal-actions">
+
+                <button
+                    id="btnGuardarMensaje"
+                    type="button"
+                    class="btn-warning"
+                >
+                    <i class="bi bi-pencil-square"></i>
+                    Guardar Mensaje
+                </button>
+
+                <button
+                    id="btnActualizarEstado"
+                    type="button"
+                    class="btn-success"
+                >
+                    <i class="bi bi-check-circle"></i>
+                    Actualizar Estado
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script src="../logica/soporte.js"></script>
+
+</body>
+
+</html>
