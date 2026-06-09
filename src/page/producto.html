@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Producto - ShopITP</title>
+  <!-- Prevent dark mode FOUC: apply class before paint -->
+  <script>
+    (function(){
+      var saved = localStorage.getItem('shopitp_theme');
+      if (saved === 'dark' || (!saved && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.addEventListener('DOMContentLoaded', function(){
+          document.body.classList.add('dark');
+          document.documentElement.classList.remove('dark');
+        });
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../public/css/tema-clientes.css">
+  <link rel="stylesheet" href="../../public/css/styles.css">
+  <link rel="stylesheet" href="../../public/css/producto.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <a href="catalogo.html" class="navbar-brand">
+        <div class="navbar-brand-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        </div>
+        <span class="navbar-brand-text">ShopITP</span>
+      </a>
+      <nav class="navbar-nav">
+        <a href="catalogo.html" class="navbar-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          Catálogo
+        </a>
+        <a href="carrito.html" class="navbar-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          Carrito
+        </a>
+        <a href="perfil.html" class="navbar-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mi Perfil
+        </a>
+      </nav>
+      <div class="navbar-actions" id="navbar-actions"></div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:2rem;padding-bottom:4rem;">
+    <div id="loading-state">
+      <div class="skeleton" style="height:24px;width:120px;margin-bottom:2rem;"></div>
+      <div class="product-detail-grid">
+        <div class="skeleton" style="height:400px;border-radius:1rem;"></div>
+        <div style="display:flex;flex-direction:column;gap:1rem;">
+          <div class="skeleton" style="height:32px;width:75%;"></div>
+          <div class="skeleton" style="height:24px;width:25%;"></div>
+          <div class="skeleton" style="height:80px;width:100%;"></div>
+          <div class="skeleton" style="height:48px;width:100%;"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="product-content" style="display:none;">
+      <nav class="breadcrumb" id="breadcrumb"></nav>
+      <button class="btn btn-ghost btn-sm mb-6" onclick="history.back()" style="gap:0.375rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Volver al catálogo
+      </button>
+
+      <div class="product-detail-grid">
+        <div class="product-image-container">
+          <div id="product-badge-area"></div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="product-image-placeholder"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        </div>
+
+        <div class="product-info">
+          <div id="product-category-badge"></div>
+          <h1 class="product-title" id="product-name"></h1>
+          <p class="product-sku text-sm text-muted" id="product-sku"></p>
+          <div class="product-price" id="product-price"></div>
+
+          <div id="product-description-section">
+            <h3 class="product-section-title">Descripción</h3>
+            <p class="product-description" id="product-description"></p>
+          </div>
+
+          <hr class="separator">
+          <div class="detail-grid" id="product-details"></div>
+          <hr class="separator">
+
+          <div class="product-actions">
+            <div class="product-quantity">
+              <span class="text-sm font-medium">Cantidad:</span>
+              <div class="quantity-selector">
+                <button class="quantity-btn" onclick="changeQuantity(-1)">−</button>
+                <span class="quantity-value" id="quantity-value">1</span>
+                <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
+              </div>
+            </div>
+            <button class="btn btn-primary btn-lg w-full" id="add-to-cart-btn" onclick="addToCart()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              Agregar al Carrito
+            </button>
+          </div>
+
+          <div class="product-benefits">
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14v10"/></svg>
+              <span class="text-xs text-muted">Envío rápido</span>
+            </div>
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+              <span class="text-xs text-muted">Compra segura</span>
+            </div>
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+              <span class="text-xs text-muted">Devolución fácil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="not-found" style="display:none;">
+      <div class="empty-state" style="padding:4rem 2rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <h3>Producto no encontrado</h3>
+        <p>El producto que buscas no existe o ha sido eliminado.</p>
+        <a href="catalogo.html" class="btn btn-primary">Volver al catálogo</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div>
+        <div class="footer-brand">
+          <div class="footer-brand-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+          </div>
+          <span class="footer-brand-text">ShopITP</span>
+        </div>
+        <p class="footer-desc">Tu tienda en línea de confianza. Encuentra los mejores productos con la mejor calidad y precio.</p>
+      </div>
+      <div>
+        <h4 class="footer-title">Navegación</h4>
+        <ul class="footer-links">
+          <li><a href="catalogo.html">Catálogo</a></li>
+          <li><a href="carrito.html">Carrito</a></li>
+          <li><a href="perfil.html">Mi Perfil</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="footer-title">Contacto</h4>
+        <ul class="footer-links">
+          <li>contacto@shopitp.com</li>
+          <li>+57 312 345 6789</li>
+          <li>Mocoa, Putumayo</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copyright">&copy; 2026 ShopITP. Proyecto académico ITP IV.</p>
+    </div>
+  </footer>
+
+  <script src="../logica/api.js"></script>
+  <script src="../logica/producto.js"></script>
+</body>
+</html>

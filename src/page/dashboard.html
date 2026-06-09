@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="api-base-url" content="">
+
+    <link rel="stylesheet" href="../../public/css/dash.css">
+    <link rel="stylesheet" href="../../public/css/tema.css">
+    
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+    
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="perfil">
+
+            <img
+                id="fotoDePerfil"
+                src="../../public/img/avatar-default.svg"
+                alt="Foto de perfil del usuario"
+                title="Cambiar foto"
+            >
+
+            <input
+                type="file"
+                id="inputImagen"
+                accept="image/*"
+                hidden
+            >
+
+            <h3 id="nombreUsuario">Usuario</h3>
+
+            <p id="rolUsuario">Cargando...</p>
+
+        </div>
+
+        <nav class="menu">
+            <a href="#" data-vista="dashboard" class="activo">Dashboard</a>
+            <a href="#" data-vista="productos">Productos</a>
+            <a href="#" data-vista="reportes">Reportes</a>
+            <a href="#" data-vista="usuarios">Usuarios</a>
+        </nav>
+
+    </aside>
+
+    <!-- CONTENIDO -->
+    <main class="contenido">
+        <div id="vista"></div>
+    </main>
+
+
+    <!-- MODAL IMAGEN -->
+    <div class="modalImagen" id="modalImagen">
+
+        <div class="contenidoModal">
+
+            <img
+                id="imagenGrande"
+                src="../../public/img/avatar-default.svg"
+                alt="Vista ampliada de la foto de perfil"
+            >
+
+            <button id="btnEditarImagen">
+                Editar Imagen
+            </button>
+
+        </div>
+
+    </div>
+
+    <script src="../logica/configuracion-api.js"></script>
+    <script src="../logica/dashboard.js"></script>
+
+</body>
+</html>

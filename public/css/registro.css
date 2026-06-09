@@ -1,0 +1,1054 @@
+/* ============================================
+   ShopITP - Registro
+   Estilos con animaciones profesionales
+   ============================================ */
+
+/* ---- CSS Variables (fallback si tema.css no carga) ---- */
+/* Si tema.css se carga via ../../public/css/tema.css, estas
+   variables se sobreescriben con las del equipo.
+   Si no carga, estos valores aseguran que todo se vea bien. */
+:root {
+  --text-primary: #1e293b;
+  --muted-fg: #64748b;
+  --accent-blue: #3b82f6;
+  --accent-blue-dark: #1d4ed8;
+  --primary-05: rgba(59,130,246,0.05);
+  --border: #e5e7eb;
+}
+
+/* ---- Page Reset ---- */
+.register-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ---- Floating Particles ---- */
+.register-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(59, 130, 246, 0.15);
+  animation: particleFloat linear infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-10vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ---- Main Wrapper ---- */
+.register-wrapper {
+  display: flex;
+  width: 100%;
+  max-width: 1100px;
+  min-height: 640px;
+  border-radius: 24px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow:
+    0 25px 80px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  position: relative;
+  z-index: 1;
+  animation: wrapperAppear 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: 2rem auto;
+  flex-shrink: 0;
+}
+
+@keyframes wrapperAppear {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ---- Left Panel (Decoration) ---- */
+.register-left {
+  display: none;
+  width: 45%;
+  background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 3rem 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .register-left {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.register-left::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(255,255,255,0.1) 0%, transparent 40%);
+  animation: leftShimmer 6s ease-in-out infinite alternate;
+}
+
+@keyframes leftShimmer {
+  0% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.register-left::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  top: -80px;
+  right: -80px;
+  animation: circleFloat 8s ease-in-out infinite;
+}
+
+@keyframes circleFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-20px, 20px) scale(1.1); }
+}
+
+.register-left-content {
+  position: relative;
+  z-index: 1;
+  color: #ffffff;
+}
+
+.register-logo-anim {
+  animation: logoPulse 3s ease-in-out infinite;
+}
+
+@keyframes logoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.logo-icon-large {
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.logo-icon-large svg {
+  width: 40px;
+  height: 40px;
+  color: #ffffff;
+}
+
+.register-left-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.5rem;
+  animation: fadeInLeft 0.6s ease both;
+}
+
+.register-left-subtitle {
+  font-size: 1.0625rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2.5rem;
+  animation: fadeInLeft 0.6s ease 0.15s both;
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ---- Features ---- */
+.register-features {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.register-feature {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  animation: fadeInLeft 0.6s ease both;
+  transition: all 0.3s ease;
+}
+
+.register-feature:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateX(6px);
+}
+
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.feature-icon svg {
+  color: #ffffff;
+}
+
+.feature-title {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.feature-desc {
+  display: block;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: 0.125rem;
+}
+
+/* ---- Right Panel (Form) ---- */
+.register-right {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+@media (min-width: 768px) {
+  .register-right {
+    padding: 3rem 3.5rem;
+    align-items: center;
+  }
+}
+
+.register-form-container {
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ---- Form Header ---- */
+.register-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--muted-fg);
+  text-decoration: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+  margin-bottom: 1.75rem;
+  animation: fadeInDown 0.5s ease both;
+}
+
+.register-back-link:hover {
+  background: var(--primary-05);
+  color: var(--text-primary);
+}
+
+.register-form-title-group {
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.5s ease 0.1s both;
+}
+
+.register-form-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin-bottom: 0.375rem;
+}
+
+.register-form-subtitle {
+  font-size: 0.9375rem;
+  color: var(--muted-fg);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- Form Fields ---- */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-field {
+  animation: fieldSlideIn 0.5s ease both;
+  animation-delay: calc(var(--field-delay, 0) * 0.08s);
+}
+
+.form-field[data-delay="0"] { --field-delay: 0; }
+.form-field[data-delay="1"] { --field-delay: 1; }
+.form-field[data-delay="2"] { --field-delay: 2; }
+.form-field[data-delay="3"] { --field-delay: 3; }
+.form-field[data-delay="4"] { --field-delay: 4; }
+
+@keyframes fieldSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.form-label svg {
+  color: var(--accent-blue);
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.8125rem 1rem;
+  padding-right: 2.75rem;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--text-primary);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  font-family: inherit;
+}
+
+/* Password field needs extra padding for toggle + status icon */
+.form-input.has-toggle {
+  padding-right: 4.5rem;
+}
+
+.form-input::placeholder {
+  color: #c0c4cc;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+  transform: translateY(-1px);
+}
+
+.form-input.valid {
+  border-color: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.form-input.invalid {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  animation: shakeError 0.4s ease;
+}
+
+/* ---- Input Status Icon ---- */
+.input-status {
+  position: absolute;
+  right: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%) scale(0.5);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  z-index: 2;
+}
+
+.input-status.show {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+  pointer-events: none;
+}
+
+.input-status.success {
+  background: #dcfce7;
+}
+
+.input-status.success::after {
+  content: '';
+  width: 10px;
+  height: 6px;
+  border-left: 2px solid #22c55e;
+  border-bottom: 2px solid #22c55e;
+  transform: rotate(-45deg);
+  margin-top: -2px;
+}
+
+.input-status.error {
+  background: #fee2e2;
+}
+
+.input-status.error::before {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 2px;
+  background: #ef4444;
+  border-radius: 1px;
+  transform: rotate(45deg);
+}
+
+.input-status.error::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 2px;
+  background: #ef4444;
+  border-radius: 1px;
+  transform: rotate(-45deg);
+}
+
+/* ---- Toggle Password ---- */
+.toggle-password {
+  position: absolute;
+  right: 2.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: var(--muted-fg);
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+}
+
+.toggle-password:hover {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.toggle-password:active {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+/* When input has toggle button, the status icon moves further left */
+.has-toggle ~ .toggle-password ~ .input-status,
+.form-input.has-toggle + .toggle-password + .input-status {
+  right: 0.625rem;
+}
+
+/* ---- Password Strength ---- */
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.password-strength.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.strength-bars {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.strength-bar {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--border);
+  transition: all 0.3s ease;
+}
+
+.strength-bar.active.weak { background: #ef4444; }
+.strength-bar.active.fair { background: #f59e0b; }
+.strength-bar.active.good { background: #3b82f6; }
+.strength-bar.active.strong { background: #22c55e; }
+
+.strength-text {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 50px;
+}
+
+.strength-text.weak { color: #ef4444; }
+.strength-text.fair { color: #f59e0b; }
+.strength-text.good { color: #3b82f6; }
+.strength-text.strong { color: #22c55e; }
+
+/* ---- Field Error ---- */
+.field-error {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #ef4444;
+  margin-top: 0.375rem;
+  min-height: 0;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transform: translateY(-4px);
+  transition: all 0.25s ease;
+  line-height: 1.4;
+}
+
+.field-error.show {
+  opacity: 1;
+  transform: translateY(0);
+  min-height: 1.1rem;
+  max-height: 3rem;
+  margin-top: 0.375rem;
+}
+
+/* ---- General Error ---- */
+.form-general-error {
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  animation: shakeError 0.4s ease;
+}
+
+.form-general-error::before {
+  content: '';
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  background: #fee2e2;
+  border-radius: 50%;
+  position: relative;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+/* ---- Register Button ---- */
+.register-btn {
+  width: 100%;
+  padding: 0.9375rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3);
+  margin-top: 0.5rem;
+  animation: fieldSlideIn 0.5s ease 0.5s both;
+}
+
+.register-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.register-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(59, 130, 246, 0.4);
+}
+
+.register-btn:hover:not(:disabled)::before {
+  opacity: 1;
+}
+
+.register-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.register-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.btn-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+}
+
+.btn-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- Login Link ---- */
+.register-login-link {
+  text-align: center;
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  animation: fieldSlideIn 0.5s ease 0.6s both;
+}
+
+.register-login-link p {
+  font-size: 0.875rem;
+  color: var(--muted-fg);
+}
+
+.register-login-link a {
+  color: var(--accent-blue);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.register-login-link a:hover {
+  color: var(--accent-blue-dark);
+  text-decoration: underline;
+}
+
+/* ---- Success Animation ---- */
+.register-success {
+  text-align: center;
+  padding: 2rem 1rem;
+  animation: successAppear 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes successAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.success-checkmark {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  animation: checkBounce 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.2s both;
+}
+
+.success-checkmark svg {
+  color: #22c55e;
+  animation: checkDraw 0.4s ease 0.5s both;
+}
+
+@keyframes checkBounce {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes checkDraw {
+  from {
+    opacity: 0;
+    stroke-dashoffset: 24;
+  }
+  to {
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+.success-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #22c55e;
+  margin-bottom: 0.5rem;
+  animation: fadeInUp 0.4s ease 0.6s both;
+}
+
+.success-desc {
+  font-size: 0.9375rem;
+  color: var(--muted-fg);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  animation: fadeInUp 0.4s ease 0.7s both;
+}
+
+.success-loader {
+  width: 200px;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0 auto;
+  overflow: hidden;
+  animation: fadeInUp 0.4s ease 0.8s both;
+}
+
+.success-loader-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  border-radius: 2px;
+  animation: loaderFill 2.5s ease-in-out forwards;
+}
+
+@keyframes loaderFill {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+/* ---- Toast for Registration ---- */
+.register-toast {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  min-width: 320px;
+  max-width: 440px;
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: toastSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  border-left: 4px solid;
+}
+
+.register-toast.toast-error {
+  border-left-color: #ef4444;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.register-toast.toast-success {
+  border-left-color: #22c55e;
+  color: #166534;
+  background: #f0fdf4;
+}
+
+.register-toast.toast-warning {
+  border-left-color: #f59e0b;
+  color: #92400e;
+  background: #fffbeb;
+}
+
+.register-toast-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.register-toast-close {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.register-toast-close:hover {
+  opacity: 1;
+}
+
+@keyframes toastSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%) scale(0.9);
+  }
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  .register-wrapper {
+    border-radius: 0;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  .register-right {
+    padding: 2rem 1.25rem;
+  }
+
+  .register-form-title {
+    font-size: 1.5rem;
+  }
+
+  .register-toast {
+    right: 0.75rem;
+    left: 0.75rem;
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 1023px) {
+  .register-wrapper {
+    max-width: 520px;
+    min-height: auto;
+    margin: 1.5rem auto;
+  }
+}
+
+/* ---- Dark Mode ---- */
+body.dark .register-page {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
+}
+
+body.dark .register-wrapper {
+  background: #1e293b;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5), 0 0 0 1px #334155;
+}
+
+body.dark .register-right {
+  background: #1e293b;
+}
+
+body.dark .register-form-title {
+  color: #e2e8f0;
+}
+
+body.dark .register-form-subtitle {
+  color: #94a3b8;
+}
+
+body.dark .form-label {
+  color: #e2e8f0;
+}
+
+body.dark .form-input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+body.dark .form-input::placeholder {
+  color: #475569;
+}
+
+body.dark .form-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+body.dark .form-input.valid {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
+}
+
+body.dark .form-input.invalid {
+  border-color: #f87171;
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.1);
+}
+
+body.dark .register-btn {
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+}
+
+body.dark .register-login-link {
+  border-top-color: #334155;
+}
+
+body.dark .register-login-link a {
+  color: #60a5fa;
+}
+
+body.dark .register-login-link p {
+  color: #94a3b8;
+}
+
+body.dark .register-back-link {
+  color: #94a3b8;
+}
+
+body.dark .register-back-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+
+body.dark .password-strength .strength-bar {
+  background: #334155;
+}
+
+body.dark .form-general-error {
+  background: rgba(127, 29, 29, 0.2);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+body.dark .success-checkmark {
+  background: linear-gradient(135deg, #052e16, #064e3b);
+}
+
+body.dark .success-desc {
+  color: #94a3b8;
+}
+
+body.dark .success-loader {
+  background: #334155;
+}
+
+body.dark .toggle-password {
+  color: #94a3b8;
+}
+
+body.dark .toggle-password:hover {
+  color: #e2e8f0;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+body.dark .field-error {
+  color: #fca5a5;
+}
+
+body.dark .register-toast {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+body.dark .register-toast.toast-error {
+  background: rgba(127, 29, 29, 0.3);
+  color: #fca5a5;
+}
+
+body.dark .register-toast.toast-success {
+  background: rgba(5, 46, 22, 0.3);
+  color: #86efac;
+}
+
+body.dark .register-toast.toast-warning {
+  background: rgba(120, 53, 15, 0.3);
+  color: #fcd34d;
+}
