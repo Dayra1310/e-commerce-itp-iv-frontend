@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carrito de Compras</title>
+    <link rel="stylesheet" href="../../public/css/carrito.css" />
+    <meta name="api-base-url" content="" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <header class="encabezado-carrito">
+      <div class="encabezado-inner">
+        <h1><i class="bx bx-cart"></i> Carrito de Compras</h1>
+        <div class="acciones-encabezado">
+          <a href="dashboard.html" class="btn-volver"><i class="bx bx-arrow-back"></i> Seguir comprando</a>
+          <span class="contador-items" id="contadorItems">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="contenedor-carrito" id="contenedorCarrito">
+      <div class="indicador-carga" id="indicadorCarga">
+        <div class="spinner"></div>
+        <p>Cargando carrito...</p>
+      </div>
+    </main>
+
+    <script src="../logica/configuracion-api.js"></script>
+    <script src="../logica/carrito.js"></script>
+  </body>
+</html>

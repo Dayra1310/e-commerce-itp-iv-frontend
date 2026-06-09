@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Direcciones de Envío</title>
+    <link rel="stylesheet" href="../../public/css/direcciones.css" />
+    <meta name="api-base-url" content="" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.epayco.co/checkout.js"></script>
+  </head>
+  <body>
+    <header class="encabezado-direcciones">
+      <div class="encabezado-inner">
+        <h1><i class="bx bx-map"></i> Direcciones de Envío</h1>
+        <a href="carrito.html" class="btn-volver"><i class="bx bx-arrow-back"></i> Volver al carrito</a>
+      </div>
+    </header>
+
+    <main class="contenedor-direcciones" id="contenedorDirecciones">
+      <div class="indicador-carga" id="indicadorCarga">
+        <div class="spinner"></div>
+        <p>Cargando direcciones...</p>
+      </div>
+    </main>
+
+    <script src="../logica/configuracion-api.js"></script>
+    <script src="../logica/carrito.js"></script>
+    <script src="../logica/direcciones.js"></script>
+  </body>
+</html>
