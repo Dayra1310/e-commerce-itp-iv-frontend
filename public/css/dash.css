@@ -14,6 +14,7 @@ body {
   background: #f3f4f6;
 
   min-height: 100vh;
+  height: 100vh;
 
   display: flex;
 
@@ -34,7 +35,7 @@ SIDEBAR
 .sidebar {
 
   width: 240px;
-
+  min-width: 240px;
   height: 100vh;
 
   background: #0f172a;
@@ -148,10 +149,13 @@ CONTENIDO
 .contenido {
 
   flex: 1;
+  min-width: 0;
+  height: 100vh;
 
   padding: 28px;
 
   overflow-y: auto;
+  overflow-x: hidden;
 
   color: #111827;
 
@@ -172,12 +176,11 @@ GRID
   display: grid;
 
   grid-template-columns: repeat(5, 1fr);
-
-  grid-template-rows: repeat(5, 1fr);
+  grid-template-rows: auto;
 
   gap: 18px;
 
-  min-height: calc(100vh - 60px);
+  min-height: auto;
 }
 
 /* =========================
@@ -608,13 +611,21 @@ RESPONSIVE
   body {
 
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
+    overflow-y: auto;
   }
 
   .sidebar {
 
     width: 100%;
-
+    min-width: 100%;
     height: auto;
+  }
+
+  .contenido {
+    height: auto;
+    min-height: 0;
   }
 
   .usuarios-header {
@@ -706,7 +717,7 @@ body.dark .badge-rol {
 }
 
 .btn-editar-usuario {
-  background: #2563eb;
+  background: transparent;
 }
 
 .btn-editar-usuario:hover {
@@ -714,7 +725,7 @@ body.dark .badge-rol {
 }
 
 .btn-eliminar-usuario {
-  background: #dc2626;
+  background: transparent;
 }
 
 .btn-eliminar-usuario:hover {

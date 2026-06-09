@@ -137,3 +137,105 @@ body {
 .texto_registro a:hover {
   text-decoration: underline;
 }
+
+/* =========================
+   SWEETALERT GLOBAL DARK
+========================= */
+
+.swal2-popup.swal-dark {
+  background: #111827 !important;
+  color: #f9fafb !important;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px !important;
+  box-shadow: 0 10px 35px rgba(0,0,0,0.45);
+  padding: 1.4rem;
+  width: 360px;
+}
+
+.swal2-popup.swal-dark.swal-toast {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px !important;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  padding: 0.75rem 1.1rem;
+  width: auto !important;
+  max-width: 380px;
+  min-width: 260px;
+  animation: slideUpSwal 0.35s ease;
+}
+
+.swal2-popup.swal-dark .swal2-title {
+  color: #ffffff;
+  font-size: 18px;
+}
+.swal2-popup.swal-dark.swal-toast .swal2-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.swal2-popup.swal-dark .swal2-html-container {
+  color: #d1d5db;
+  font-size: 14px;
+}
+.swal2-popup.swal-dark.swal-toast .swal2-html-container {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.swal2-popup.swal-dark .swal2-confirm {
+  background: #2563eb !important;
+  border-radius: 10px !important;
+  padding: 10px 18px;
+  font-weight: 600;
+}
+
+.swal2-popup.swal-dark .swal2-cancel {
+  background: #1f2937 !important;
+  border-radius: 10px !important;
+  padding: 10px 18px;
+  color: #f9fafb !important;
+}
+
+.swal2-popup.swal-dark .swal2-icon {
+  border-color: rgba(255,255,255,0.15) !important;
+}
+.swal2-popup.swal-dark.swal-toast .swal2-icon {
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  min-height: 28px;
+  margin: 0 8px 0 0 !important;
+}
+.swal2-popup.swal-toast.swal-dark .swal2-icon-text {
+  font-size: 16px !important;
+}
+
+.swal2-popup.swal-dark .swal-dark-bar {
+  background: rgba(255,255,255,0.2) !important;
+}
+
+.swal2-container.swal2-backdrop-show {
+  background: rgba(0,0,0,0.55) !important;
+  backdrop-filter: blur(4px);
+}
+
+.swal2-container.swal2-bottom {
+  backdrop-filter: none !important;
+}
+.swal2-container.swal2-bottom .swal2-popup.swal-toast {
+  pointer-events: auto;
+}
+
+@keyframes slideUpSwal {
+  from {
+    transform: translateY(40px) scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
