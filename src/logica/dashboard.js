@@ -450,7 +450,13 @@ async function cargarVista(nombre) {
   }
 
   if (nombre === "soporte") {
-    await cargarVistaSoporte();
+
+      const respuesta = await fetch("../page/soporte.html");
+      const html = await respuesta.text();
+
+      elementos.vista.innerHTML = html;
+
+      return;
   }
 
   actualizarIconoDark();
